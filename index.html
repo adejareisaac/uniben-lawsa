@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAWSA UNIBEN | Official Digital Platform</title>
+    <meta name="description"
+        content="Official digital platform for the Law Students' Association (LAWSA), University of Benin Branch — The Vanguard of Legal Excellence.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="public/assets/css/main.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;700;900&family=Archivo:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <!-- GSAP must load before main.js for animations to work -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <!-- Custom JS -->
+    <script src="public/assets/js/router.js" defer></script>
+    <script src="public/assets/js/api.js" defer></script>
+    <script src="public/assets/js/main.js" defer></script>
+
+</head>
+
+<body>
+    <!--
+  LAWSA UNIBEN | Official Digital Platform
+  Cleaned and refined for maintainability and best practices
+-->
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     NOTICE MODAL
+     ═══════════════════════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="noticeModal" role="dialog" aria-modal="true">
+        <div class="modal">
+            <button class="modal__close" onclick="closeModal('noticeModal')" aria-label="Close">×</button>
+            <div class="modal__body">
+                <div class="section-num">[LAWSA — NOTICE]</div>
+                <h2 class="display" id="noticeTitle"
+                    style="font-size:var(--t-2xl);color:var(--text-h);margin-bottom:var(--s4);">Important Announcement
+                </h2>
+                <div id="noticeBody" style="color:var(--text-m);line-height:1.75;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Modal -->
+    <div class="modal-overlay" id="blogModal" role="dialog" aria-modal="true">
+        <div class="modal modal--full">
+            <button class="modal__close" onclick="closeModal('blogModal')" aria-label="Close">×</button>
+            <div id="blogModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Resource Modal -->
+    <div class="modal-overlay" id="resourceModal" role="dialog" aria-modal="true">
+        <div class="modal modal--full">
+            <button class="modal__close" onclick="closeModal('resourceModal')" aria-label="Close">×</button>
+            <div class="resource-modal__header">⚠ Ensure Google Drive link is public if document fails to load.</div>
+            <iframe id="resourceFrame" src="" title="Resource Document"></iframe>
+        </div>
+    </div>
+
+    <!-- Product Modal (Store) -->
+    <div class="modal-overlay" id="productModal" role="dialog" aria-modal="true">
+        <div class="modal modal--product">
+            <button class="modal__close" onclick="closeModal('productModal')" aria-label="Close">×</button>
+            <div id="productModalContent"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     TICKER
+     ═══════════════════════════════════════════════════════════════ -->
+    <div class="ticker" id="mainTicker">
+        <div class="ticker__track" id="tickerTrack">
+            <div class="ticker__item">Welcome to LAWSA UNIBEN — The Official Digital Hub of Law Students at the
+                University of Benin
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚖&nbsp;&nbsp; 2025/2026 Academic Session &nbsp;&nbsp;●&nbsp;&nbsp; Pay Your Association Dues
+                Online &nbsp;&nbsp;●&nbsp;&nbsp; Access Academic Resources by Level &nbsp;&nbsp;●&nbsp;&nbsp;</div>
+            <div class="ticker__item">Welcome to LAWSA UNIBEN — The Official Digital Hub of Law Students at the
+                University of Benin
+                &nbsp;&nbsp;⚖&nbsp;&nbsp; 2025/2026 Academic Session &nbsp;&nbsp;●&nbsp;&nbsp; Pay Your Association Dues
+                Online &nbsp;&nbsp;●&nbsp;&nbsp; Access Academic Resources by Level &nbsp;&nbsp;●&nbsp;&nbsp;</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+     NAVIGATION
+     ═══════════════════════════════════════════════════════════════ -->
+    <nav class="navbar" role="navigation">
+        <div class="container nav-inner">
+            <div class="nav-logo display" data-nav="home"
+                style="cursor:pointer; display: flex; flex-direction: row; align-items: center;">
+                <img src="./public/assets/images/logo.png" alt="LAWSA UNIBEN Logo"
+                    style="height:50px;width:auto;margin-right:var(--s2);">
+                LAWSA <span> UNIBEN</span>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-link nav-link--active" data-nav="home">Home</li>
+                <li class="nav-link" data-nav="leaders">Leaders</li>
+                <li class="nav-link" data-nav="news">News</li>
+                <li class="nav-link" data-nav="resources">Resources</li>
+                <li class="nav-link" data-nav="store">Store</li>
+            </ul>
+            <button class="nav-cta" data-nav="pay">Pay Dues →</button>
+            <button class="hamburger" onclick="toggleMobile()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="mobile-nav" id="mobileNav">
+        <div class="nav-link" data-nav="home">Home</div>
+        <div class="nav-link" data-nav="leaders">Leaders</div>
+        <div class="nav-link" data-nav="news">News</div>
+        <div class="nav-link" data-nav="resources">Resources</div>
+        <div class="nav-link" data-nav="store">Store</div>
+    </div>
+
+    <main>
+        <!-- ═══════════════════════════════════════════════════════════════
+     SECTION: HOME
+     ═══════════════════════════════════════════════════════════════ -->
+        <section id="home" data-section="home" class="section--active">
+
+            <!-- HERO -->
+            <div class="hero">
+                <div class="hero__main">
+                    <div class="hero_left">
+                        <h1 class="hero__title display">
+                            <span class="text-gold">Vanguard</span>
+                            <div cl>
+                                <span>of</span>
+                                <span class="text-legal">Legal</span>
+                                <span class="text-gold">Excellence</span>
+                            </div>
+                        </h1>
+                        <p class="hero__subtitle">
+                            Welcome to the digital home of the Law Students' Association, University of Benin. <br>
+                            <span class="text-gold" style="font-weight:600;">Empowering legal minds. Building a
+                                legacy.</span>
+                        </p>
+                        <div class="hero__actions">
+                            <button class="btn btn--primary" onclick="Router.navigate('pay')">Pay Dues Now</button>
+                            <button class="btn btn--outline hero-btn-special" onclick="Router.navigate('resources')">Browse
+                                Resources</button>
+                        </div>
+                        <div class="hero__session">
+                            <span style="font-size:1.3em;vertical-align:middle;">⚖</span> Law Students Association ·
+                            UNIBEN
+                        </div>
+                    </div>
+                    <div class="hero_right">
+                        <img src="public/assets/images/lady_justice.png" alt="Lady Justice Image">
+                    </div>
+                </div>
+                <div class="ticker heroticker" id="heroTicker">
+                    <div class="ticker__track" id="tickerTrack">
+
+                        <div class="ticker__item hero_ticker__item">
+                            <span class="hero-ticker__text">LAWSA UNIBEN</span>
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
+                        </div>
+
+                        <div class="ticker__item hero_ticker__item">
+                            <span class="hero-ticker__text">LAWSA UNIBEN</span>
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
+                        </div>
+
+                        <div class="ticker__item hero_ticker__item">
+                            <span class="hero-ticker__text">LAWSA UNIBEN</span>
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
+                        </div>
+
+                        <div class="ticker__item hero_ticker__item">
+                            <span class="hero-ticker__text">LAWSA UNIBEN</span>
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
+                        </div>
+
+                    </div>
+                </div>
+                <div class="hero__bottom">
+                    <div class="hero__bottom-track">
+                        <span class="hero__bottom-item">Legal Advocacy <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Academic Excellence <span
+                                class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Student Welfare <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Community Service <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Professional Growth <span
+                                class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Leadership Development <span
+                                class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Legal Advocacy <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Academic Excellence <span
+                                class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Student Welfare <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Community Service <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Professional Growth <span
+                                class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Leadership Development <span
+                                class="hero__bottom-sep">⚖</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WHAT WE DO — [LAWSA — 01] -->
+            <div class="what-we-do">
+                <div class="wwd-header">
+                    <div class="wwd-header-left">
+                        <div class="wwd-big display">OUR<br>RESPONSIBILITY</div>
+                    </div>
+                    <div class="wwd-header-right">
+                        <p class="wwd-intro">The Law Students' Association exists to serve, protect, and empower every
+                            law student at the University of Benin. Our functions span academic support, welfare
+                            advocacy, social organization, and professional development.</p>
+                    </div>
+                </div>
+                <div class="wwd-items">
+                    <div class="wwd-item">
+                        <div class="wwd-item-num">01</div>
+                        <div class="wwd-item-body">
+                            <div class="wwd-item-title">Academic Support & Resources</div>
+                            <p class="wwd-item-text">We curate and distribute past examination questions, textbooks,
+                                lecture notes, and legal reference materials across all levels — 100L through 500L —
+                                ensuring every student has access to the academic tools they need to excel. Our resource
+                                library is updated each semester by the Executive team.</p>
+                        </div>
+                    </div>
+                    <div class="wwd-item">
+                        <div class="wwd-item-num">02</div>
+                        <div class="wwd-item-body">
+                            <div class="wwd-item-title">Student Welfare & Advocacy</div>
+                            <p class="wwd-item-text">The welfare of law students is our highest priority. From academic
+                                grievances and examination irregularities to campus safety and faculty-student
+                                relations, LAWSA stands as the first line of defence for every member. We engage the
+                                Faculty of Law and University management through structured dialogue and representation.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="wwd-item">
+                        <div class="wwd-item-num">03</div>
+                        <div class="wwd-item-body">
+                            <div class="wwd-item-title">Social Events & Programmes</div>
+                            <p class="wwd-item-text">Beyond the lecture hall, LAWSA organizes Law Week, annual dinners,
+                                inter-faculty debates, legal aid clinics, and social mixers that build lasting bonds
+                                among law students. We recognize that the social environment of a law student is as
+                                critical as their academic performance.</p>
+                        </div>
+                    </div>
+                    <div class="wwd-item">
+                        <div class="wwd-item-num">04</div>
+                        <div class="wwd-item-body">
+                            <div class="wwd-item-title">Professional Development</div>
+                            <p class="wwd-item-text">We bridge the gap between legal education and professional practice
+                                through seminars, law clinic partnerships, moot court coaching, and mentorship
+                                programmes connecting students with practising lawyers, judges, and legal professionals
+                                across Nigeria.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS BAND — [LAWSA — 02] -->
+            <div class="stats-band">
+                <div class="stat-cell">
+                    <div class="stat-cell__num">500+</div>
+                    <div class="stat-cell__label">Active Members</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="stat-cell__num">15+</div>
+                    <div class="stat-cell__label">Years of Excellence</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="stat-cell__num">80+</div>
+                    <div class="stat-cell__label">Academic Resources</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="stat-cell__num">5</div>
+                    <div class="stat-cell__label">Academic Levels Served</div>
+                </div>
+            </div>
+
+            <!-- PRESIDENT'S MESSAGE — [LAWSA — 03] -->
+            <div class="pres-section reveal">
+                <div class="pres-image-col">
+                    <img id="presImage" src="public/assets/images/Osatohanmwengoodnesseseseosa.webp"
+                        alt="President's Image">
+                    <div class="pres-img-overlay">
+                        <div class="pres-img-name display" id="presName">Osatohanmwen Goodness Eseosa</div>
+                        <div class="pres-img-title">President, LAWSA UNIBEN · 2025/2026</div>
+                    </div>
+                </div>
+                <div class="pres-content-col">
+                    <div class="pres-quote-mark display">"<span>Welcome Message from the President</span></div>
+                    <p class="pres-message-text" id="presText">
+                        It is with great pleasure and a profound sense of pride that I welcome you to the official
+                        website of the Law Students Association (LAWSA), University of Benin.
+                        The creation of this website marks a significant milestone in the history of our Association.
+                        It represents our commitment to embracing innovation, improving accessibility, and creating a
+                        more connected and informed LAWSA community.<br>
+                        This platform has been designed to serve as a central space where Lawsans, alumni, partners, and
+                        visitors can access important information about our Association, stay updated on our activities,
+                        explore opportunities, and connect with the various initiatives that continue to shape our
+                        community.<br>
+                        As an Association built on excellence, leadership, and service, we recognize the importance of
+                        adapting to the changing demands of our time. This website is not only a digital platform but
+                        also a reflection of our vision for a modern, transparent, and progressive LAWSA.<br>
+                        I extend my sincere appreciation to everyone whose dedication and efforts contributed to
+                        bringing
+                        this vision to life. Your commitment continues to strengthen the foundation upon which future
+                        generations of Lawsans will build.<br>
+                        As you navigate this platform, I invite you to engage, participate, and remain connected with
+                        the
+                        remarkable journey of the Law Students Association, University of Benin.<br>
+                        Welcome to a new era of LAWSA.
+                    </p>
+                    <div class="pres-sig">
+                        <div class="pres-sig-name display" id="presSigName">Osatohanmwen Goodness Eseosa</div>
+                        <div class="pres-sig-role">President, Law Students Association (LAWSA)<br>University of Benin
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEADERSHIP PREVIEW — [LAWSA — 04] -->
+            <div class="leaders-section reveal">
+                <div class="leaders-header">
+                    <div class="leaders-big display">LEADERSHIP</div>
+                </div>
+                <div class="leader-featured">
+                    <div class="leader-featured__img">
+                        <img id="presImgLeader" src="public/assets/images/Osatohanmwengoodnesseseseosa.webp"
+                            alt="President">
+                    </div>
+                    <div class="leader-featured__body">
+                        <div class="leader-featured__role">● President · 2025/2026</div>
+                        <div class="leader-featured__name display" id="presNameLeader">Goodness<br>Osatohanmwen</div>
+                        <p class="leader-featured__bio">Leading the 2025/2026 executive council of LAWSA UNIBEN with a
+                            mandate centered on academic empowerment, welfare expansion, and digital transformation of
+                            association services. A final-year law student with a distinguished record in student
+                            governance and legal advocacy.</p>
+                        <div style="margin-top:var(--s6);">
+                            <button class="btn btn--outline" onclick="Router.navigate('leaders')">Meet the Full Council
+                                →</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="leaders-grid-secondary" id="leaderPreviewGrid">
+                    <!-- Injected by JS; dummy fallback below -->
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="public/assets/images/leaders/headshots/vicepresidentegbadonobehimarielionel.webp"
+                                alt="VP">
+                        </div>
+                        <div class="leader-card__role">Vice President</div>
+                        <div class="leader-card__name display">Egbadon Obehi Marie-lionel</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/secretarygeneralilumahgodsfavouro.webp"
+                                alt="Sec">
+                        </div>
+                        <div class="leader-card__role">Secretary General</div>
+                        <div class="leader-card__name display">Ilumah God's Favour O.</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="public/assets/images/leaders/headshots/asgbawitoluwaleyitestimony.webp"
+                                alt="Assistant Secretary General">
+                        </div>
+                        <div class="leader-card__role">Assistant Secretary General</div>
+                        <div class="leader-card__name display">Bawi Toluwaleyi Testimony</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="public/assets/images/leaders/headshots/attorneygeneralyusufadnanaolamilekan.webp"
+                                alt="Attorney General">
+                        </div>
+                        <div class="leader-card__role">Attorney General</div>
+                        <div class="leader-card__name display">Yusuf Adnana Olamilekan</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/protestimonyoghenero.webp" alt="PRO">
+                        </div>
+                        <div class="leader-card__role">Public Relations Officer</div>
+                        <div class="leader-card__name display">Testimony Oghenero-Onowhuke</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/directoroffinanceprincedanokoro.webp"
+                                alt="Director of Finance">
+                        </div>
+                        <div class="leader-card__role">Director of Finance</div>
+                        <div class="leader-card__name display">Prince Dan Okoro</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/assdirectoroffinanceamamiomoelfreda.webp"
+                                alt="Assistant Director of Finance">
+                        </div>
+                        <div class="leader-card__role">Director of Sports</div>
+                        <div class="leader-card__name display">Peace Imhanlele</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/directorofsocialsaigbokhaeefosa.webp"
+                                alt="Director of Socials">
+                        </div>
+                        <div class="leader-card__role">Director of Socials</div>
+                        <div class="leader-card__name display">Aigbokha Eefosa</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECENT NEWS — [LAWSA — 05] -->
+            <div class="news-section reveal">
+                <div class="news-header">
+                    <div>
+                        <div class="news-big display">OUR<br>RECENT<br>NEWS</div>
+                    </div>
+                    <button class="btn btn--outline" onclick="Router.navigate('news')">See All News →</button>
+                </div>
+                <div class="news-grid" id="recentNewsGrid">
+                    <!-- Dummy cards (replaced by JS) -->
+                    <article class="news-card">
+                        <div class="news-card__img"><img
+                                src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80"
+                                alt="News"></div>
+                        <div class="news-card__body">
+                            <div class="news-card__cat">Announcement</div>
+                            <h3 class="news-card__title display">2025/2026 Dues Payment Now Open</h3>
+                            <p class="news-card__excerpt">The LAWSA Financial Secretary announces that association dues
+                                payment for the 2025/2026 academic session is now open on our digital platform. All
+                                members are urged to pay promptly to enjoy full membership benefits.</p>
+                            <div class="news-card__meta"><span>Jan 15, 2026</span><span
+                                    class="news-card__arrow">→</span></div>
+                        </div>
+                    </article>
+                    <article class="news-card">
+                        <div class="news-card__img"><img
+                                src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=600&q=80"
+                                alt="News"></div>
+                        <div class="news-card__body">
+                            <div class="news-card__cat">Events</div>
+                            <h3 class="news-card__title display">Law Week 2026 — Call for Participants</h3>
+                            <p class="news-card__excerpt">LAWSA UNIBEN proudly announces the commencement of Law Week
+                                2026. All law students are encouraged to register and participate in debates, moot court
+                                sessions, and the annual legal quiz competition.</p>
+                            <div class="news-card__meta"><span>Feb 3, 2026</span><span class="news-card__arrow">→</span>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="news-card">
+                        <div class="news-card__img"><img
+                                src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80"
+                                alt="News"></div>
+                        <div class="news-card__body">
+                            <div class="news-card__cat">Press</div>
+                            <h3 class="news-card__title display">LAWSA Launches Official Digital Platform</h3>
+                            <p class="news-card__excerpt">In a landmark move toward digital transformation, LAWSA
+                                UNIBEN has officially launched its digital platform — the first of its kind among law
+                                student associations in Edo State.</p>
+                            <div class="news-card__meta"><span>Jun 22nd, 2026</span><span class="news-card__arrow">→</span></div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- STORE PREVIEW (Homepage) -->
+            <div class="store-section reveal">
+                <div class="news-header">
+                    <div>
+                        <div class="news-big display">OUR<br>STORE</div>
+                    </div>
+                    <button class="btn btn--outline" onclick="Router.navigate('store')">Visit Store →</button>
+                </div>
+                <div class="store-preview-grid" id="storePreviewGrid">
+                    <!-- Store cards will be injected here -->
+                </div>
+            </div>
+
+            <!-- ACADEMIC CALENDAR — [LAWSA — 06] -->
+            <div class="calendar-section reveal">
+                <div class="cal-header">
+                    <div class="cal-header-title">Academic Calendar</div>
+                </div>
+                <div class="cal-grid" id="calendarGrid">
+                    <!-- Calendar items will be injected here -->
+                </div>
+            </div>
+
+            <div class="whatsapp-group-section reveal"
+                style="margin-bottom:var(--s8);background:rgba(255,255,255,.06);padding:var(--s6);border-radius:24px;">
+                <div class="news-big display" style="margin-bottom:var(--s4);">Join Our Official<br><span
+                        class="text-gold">WhatsApp Group</span></div>
+                <p style="color:var(--text-m);max-width:680px;line-height:1.8;text-align: center; margin: 0 auto;">Stay connected with LAWSA UNIBEN
+                    announcements, dues updates, event invitations, and member support. Send a message to our official
+                    WhatsApp line to request access to the group.</p>
+                <a class="btn btn--gold" href="https://chat.whatsapp.com/JLqGiwPvnNR2DFUoJnyqOZ?mode=gi_t
+" target="_blank" rel="noopener">Join WhatsApp Group →</a>
+            </div>
+            <div class="contact-section reveal">
+                <div class="contact-left">
+                    <div>
+                        <div class="contact-big display">TALK<br>TO US</div>
+                    </div>
+                    <div class="contact-details">
+                        <div class="contact-detail">
+                            <div class="contact-detail__icon">✉</div>
+                            <div>
+                                <div class="contact-detail__label">Email</div>
+                                <div class="contact-detail__val">lawsauniben24@gmail.com</div>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <div class="contact-detail__icon">📍</div>
+                            <div>
+                                <div class="contact-detail__label">Location</div>
+                                <div class="contact-detail__val">Faculty of Law, University of Benin, Benin City, Edo
+                                    State</div>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <div class="contact-detail__icon">📞</div>
+                            <div>
+                                <div class="contact-detail__label">Phone (Secretary-General)</div>
+                                <div class="contact-detail__val">+234 705 770 5284</div>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <div class="contact-detail__icon">ig</div>
+                            <div>
+                                <div class="contact-detail__label">Instagram</div>
+                                <div class="contact-detail__val">@uniben_lawsa</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-right">
+                    <div class="contact-form-title display">Have Something to Share?<br>We'd Love to Hear It.</div>
+                    <form id="contactForm" onsubmit="handleContact(event)">
+                        <div class="field">
+                            <label class="field__label">Full Name</label>
+                            <input type="text" class="field__input" placeholder="Your full name" required>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Email Address</label>
+                            <input type="email" class="field__input" placeholder="your@email.com" required>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Subject</label>
+                            <input type="text" class="field__input" placeholder="What is this regarding?">
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Message</label>
+                            <textarea class="field__textarea" rows="5"
+                                placeholder="Write your message here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn--primary" style="width:100%;">Send Message →</button>
+                    </form>
+                </div>
+            </div>
+        </section><!-- /home -->
+
+        <!-- ═══════════════════════════════════════════════════════════════
+     SECTION: LEADERS
+     ═══════════════════════════════════════════════════════════════ -->
+        <section id="leaders" data-section="leaders">
+            <div class="leaders-page-header container" style="padding-left:var(--s7);padding-right:var(--s7);">
+                <div class="section-num">[LAWSA — LEADERSHIP]</div>
+                <div class="leaders-page-title display">
+                    Executive<br><span class="text-gold">Leadership</span>
+                </div>
+                <div class="leaders-branches-container">
+                    <div class="leaders-branches">
+                        <div class="branch-pill active" onclick="setLeaderBranch('executives',this)">Executive</div>
+                        <div class="branch-pill" onclick="setLeaderBranch('legislative',this)">Legislative</div>
+                        <div class="branch-pill" onclick="setLeaderBranch('judiciary',this)">Judiciary</div>
+                        <div class="branch-pill" onclick="setLeaderBranch('lsba',this)">Law Students Bar Association</div>
+                        <div class="branch-pill" onclick="setLeaderBranch('previous',this)">Previous Presidents</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="executivesPanel">
+                <div class="leader-featured" id="leaderFeaturedFull">
+                    <div class="leader-featured__img">
+                        <img src="./public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President">
+                    </div>
+                    <div class="leader-featured__body">
+                        <div class="leader-featured__role">● President · 2025/2026 Session</div>
+                        <div class="leader-featured__name display">Goodness<br>Osatohanmwen</div>
+                        <p class="leader-featured__bio">President of LAWSA UNIBEN for the 2025/2026 academic session. A
+                            dedicated advocate for student welfare and academic excellence. Elected on a platform of
+                            digital transformation, welfare expansion, and professional development for all law students
+                            at UNIBEN.</p>
+                        <div style="display:flex;gap:var(--s3);margin-top:var(--s5);">
+                            <a href="https://www.instagram.com/osato_eseosa/" class="leader-card__social"
+                                title="Instagram">ig</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="leaders-grid-secondary" id="leaderFullGrid">
+                    <!-- Injected by JS or fallback -->
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="public/assets/images/leaders/headshots/vicepresidentegbadonobehimarielionel.webp"
+                                alt="VP">
+                        </div>
+                        <div class="leader-card__role">Vice President</div>
+                        <div class="leader-card__name display">Egbadon Obehi Marie-lionel</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/secretarygeneralilumahgodsfavouro.webp"
+                                alt="Sec">
+                        </div>
+                        <div class="leader-card__role">Secretary General</div>
+                        <div class="leader-card__name display">Ilumah God's Favour O.</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="public/assets/images/leaders/headshots/asgbawitoluwaleyitestimony.webp"
+                                alt="Assistant Secretary General">
+                        </div>
+                        <div class="leader-card__role">Assistant Secretary General</div>
+                        <div class="leader-card__name display">Bawi Toluwaleyi Testimony</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="public/assets/images/leaders/headshots/attorneygeneralyusufadnanaolamilekan.webp"
+                                alt="Attorney General">
+                        </div>
+                        <div class="leader-card__role">Attorney General</div>
+                        <div class="leader-card__name display">Yusuf Adnana Olamilekan</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/protestimonyoghenero.webp" alt="PRO">
+                        </div>
+                        <div class="leader-card__role">Public Relations Officer</div>
+                        <div class="leader-card__name display">Testimony Oghenero-Onowhuke</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/directoroffinanceprincedanokoro.webp"
+                                alt="Director of Finance">
+                        </div>
+                        <div class="leader-card__role">Director of Finance</div>
+                        <div class="leader-card__name display">Prince Dan Okoro</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/assdirectoroffinanceamamiomoelfreda.webp"
+                                alt="Assistant Director of Finance">
+                        </div>
+                        <div class="leader-card__role">Assistant Director of Finance</div>
+                        <div class="leader-card__name display">Amami Omo Elfreda</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/directorofsportspeaceimhanlele.webp"
+                                alt="Director of Sports">
+                        </div>
+                        <div class="leader-card__role">Director of Sports</div>
+                        <div class="leader-card__name display">Peace Imhanlele</div>
+                    </div>
+                    <div class="leader-card">
+                        <div class="leader-card__portrait"><img
+                                src="./public/assets/images/leaders/headshots/directorofsocialsaigbokhaeefosa.webp"
+                                alt="Director of Socials">
+                        </div>
+                        <div class="leader-card__role">Director of Socials</div>
+                        <div class="leader-card__name display">Aigbokha Eefosa</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="legislativePanel" style="display:none;padding:var(--s8) var(--s7);">
+                <p style="color:var(--text-m);">Legislative branch details will be populated from the admin dashboard.
+                </p>
+            </div>
+            <div id="judiciaryPanel" style="display:none;padding:var(--s8) var(--s7);">
+                <p style="color:var(--text-m);">Judiciary details will be populated from the admin dashboard.</p>
+            </div>
+            <div id="lsbaPanel" style="display:none;padding:var(--s8) var(--s7);">
+                <p style="color:var(--text-m);">Law Students Bar Association details will be populated from the admin
+                    dashboard.</p>
+            </div>
+            <div id="previousPanel" style="display:none;padding:var(--s8) var(--s7);">
+                <p style="color:var(--text-m);">Previous Presidents will be listed here once the leadership data is
+                    available.</p>
+            </div>
+        </section>
+
+        <!-- STORE PAGE — [LAWSA — STORE] -->
+        <section id="store" data-section="store">
+            <div class="store-page container">
+                <div class="section-header">
+                    <div>
+                        <div class="section-num">[LAWSA — STORE]</div>
+                        <h2 class="section-title display">Our Store</h2>
+                    </div>
+                    <p class="section-copy">Purchase official LAWSA UNIBEN gear via bank transfer. Send your receipt
+                        over WhatsApp after payment to complete your order.</p>
+                </div>
+                <div class="store-full-grid" id="storeGrid"></div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+     SECTION: NEWS
+     ═══════════════════════════════════════════════════════════════ -->
+        <section id="news" data-section="news">
+            <div class="news-page-header container" style="padding-left:var(--s7);padding-right:var(--s7);">
+                <div class="section-num">[LAWSA — NEWS]</div>
+                <div class="news-page-title display">News &<br><span class="text-gold">Publications</span></div>
+                <div class="news-filter-bar" id="newsFilterBar">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="Announcements">Announcements</button>
+                    <button class="filter-btn" data-filter="Events">Events</button>
+                    <button class="filter-btn" data-filter="Press">Press</button>
+                </div>
+            </div>
+            <div class="news-full-grid" id="allNewsGrid">
+                <!-- Injected by JS; dummy fallback -->
+                <article class="news-card" onclick="openBlogDummy(0)">
+                    <div class="news-card__img"><img
+                            src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80" alt=""
+                            loading="lazy"></div>
+                    <div class="news-card__body">
+                        <div class="news-card__cat">Announcements</div>
+                        <h3 class="news-card__title display">2025/2026 Dues Payment Now Open</h3>
+                        <p class="news-card__excerpt">The LAWSA Financial Secretary announces that association dues
+                            payment for the 2025/2026 academic session is now open on this digital platform. All members
+                            are urged to pay promptly to enjoy full membership benefits.</p>
+                        <div class="news-card__meta"><span>Jan 15, 2026</span><span class="news-card__arrow">→</span>
+                        </div>
+                    </div>
+                </article>
+                <article class="news-card" onclick="openBlogDummy(1)">
+                    <div class="news-card__img"><img
+                            src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=600&q=80" alt=""
+                            loading="lazy"></div>
+                    <div class="news-card__body">
+                        <div class="news-card__cat">Events</div>
+                        <h3 class="news-card__title display">Law Week 2026 — Call for Participants</h3>
+                        <p class="news-card__excerpt">LAWSA UNIBEN proudly announces the commencement of Law Week 2026.
+                            All law students are encouraged to register and participate in debates, moot court sessions,
+                            and the annual legal quiz competition.</p>
+                        <div class="news-card__meta"><span>Feb 3, 2026</span><span class="news-card__arrow">→</span>
+                        </div>
+                    </div>
+                </article>
+                <article class="news-card" onclick="openBlogDummy(2)">
+                    <div class="news-card__img"><img
+                            src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80" alt=""
+                            loading="lazy"></div>
+                    <div class="news-card__body">
+                        <div class="news-card__cat">Press</div>
+                        <h3 class="news-card__title display">LAWSA Launches Official Digital Platform</h3>
+                        <p class="news-card__excerpt">In a landmark move, LAWSA UNIBEN has officially launched its
+                            digital platform — the first of its kind among law student associations in Edo State. The
+                            platform enables online dues payment, resource access, and news distribution.</p>
+                        <div class="news-card__meta"><span>Mar 1, 2026</span><span class="news-card__arrow">→</span>
+                        </div>
+                    </div>
+                </article>
+                <article class="news-card" onclick="openBlogDummy(3)">
+                    <div class="news-card__img"><img
+                            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80" alt=""
+                            loading="lazy"></div>
+                    <div class="news-card__body">
+                        <div class="news-card__cat">Events</div>
+                        <h3 class="news-card__title display">Annual Moot Court Competition 2026</h3>
+                        <p class="news-card__excerpt">The annual LAWSA UNIBEN Moot Court Competition returns this
+                            February. Open to all levels, this prestigious competition offers winners a place in the
+                            inter-university competition representing UNIBEN.</p>
+                        <div class="news-card__meta"><span>Feb 20, 2026</span><span class="news-card__arrow">→</span>
+                        </div>
+                    </div>
+                </article>
+                <article class="news-card" onclick="openBlogDummy(4)">
+                    <div class="news-card__img"><img
+                            src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=600&q=80" alt=""
+                            loading="lazy"></div>
+                    <div class="news-card__body">
+                        <div class="news-card__cat">Announcements</div>
+                        <h3 class="news-card__title display">New Academic Resources Added — All Levels</h3>
+                        <p class="news-card__excerpt">The Academic Director is pleased to announce the addition of over
+                            40 new resources to the LAWSA digital library, covering past questions and lecture notes
+                            from 100L to 500L.</p>
+                        <div class="news-card__meta"><span>Jan 28, 2026</span><span class="news-card__arrow">→</span>
+                        </div>
+                    </div>
+                </article>
+                <article class="news-card" onclick="openBlogDummy(5)">
+                    <div class="news-card__img"><img
+                            src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&q=80" alt=""
+                            loading="lazy"></div>
+                    <div class="news-card__body">
+                        <div class="news-card__cat">Press</div>
+                        <h3 class="news-card__title display">LAWSA Welfare Fund — Call for Applications</h3>
+                        <p class="news-card__excerpt">The LAWSA Welfare Committee invites eligible law students
+                            experiencing financial hardship to apply for the 2026 Student Welfare Fund. Applications are
+                            open to dues-paying members of all levels.</p>
+                        <div class="news-card__meta"><span>Mar 15, 2026</span><span class="news-card__arrow">→</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+     SECTION: RESOURCES
+     ═══════════════════════════════════════════════════════════════ -->
+        <section id="resources" data-section="resources">
+            <div class="resources-header container" style="padding-left:var(--s7);padding-right:var(--s7);">
+                <div class="section-num">[LAWSA — RESOURCES]</div>
+                <div class="resources-title display">Academic<br><span class="text-gold">Resources</span></div>
+                <div class="resources-level-tabs" id="levelTabs">
+                    <button class="level-tab active" data-level="all">All Levels</button>
+                    <button class="level-tab" data-level="100">100 Level</button>
+                    <button class="level-tab" data-level="200">200 Level</button>
+                    <button class="level-tab" data-level="300">300 Level</button>
+                    <button class="level-tab" data-level="400">400 Level</button>
+                    <button class="level-tab" data-level="500">500 Level</button>
+                </div>
+                <div class="resources-filter-bar">
+                    <button class="filter-btn active" data-category="all">All Resources</button>
+                    <button class="filter-btn" data-category="faculty">Faculty Resources</button>
+                    <button class="filter-btn" data-category="general">General Resources</button>
+                </div>
+            </div>
+            <div class="resources-grid" id="resourcesGrid">
+                <!-- Dummy resources; replaced by JS -->
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">100L</div>
+                    <div class="resource-card__title display">Law of Contract — Past Questions 2022</div>
+                    <div class="resource-card__type">Past Question</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">100L</div>
+                    <div class="resource-card__title display">Constitutional Law — Lecture Notes</div>
+                    <div class="resource-card__type">Lecture Note</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">200L</div>
+                    <div class="resource-card__title display">Law of Torts — Past Questions 2023</div>
+                    <div class="resource-card__type">Past Question</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">200L</div>
+                    <div class="resource-card__title display">Criminal Law Textbook — Smith & Hogan</div>
+                    <div class="resource-card__type">Textbook</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">300L</div>
+                    <div class="resource-card__title display">Company Law — Past Questions 2022–2024</div>
+                    <div class="resource-card__type">Past Question</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">300L</div>
+                    <div class="resource-card__title display">Evidence Act — Annotated Notes</div>
+                    <div class="resource-card__type">Lecture Note</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">400L</div>
+                    <div class="resource-card__title display">Commercial Law — Past Questions 2023</div>
+                    <div class="resource-card__type">Past Question</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">400L</div>
+                    <div class="resource-card__title display">Jurisprudence — Complete Study Guide</div>
+                    <div class="resource-card__type">Reference</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">500L</div>
+                    <div class="resource-card__title display">Professional Ethics — Bar Prep Notes</div>
+                    <div class="resource-card__type">Lecture Note</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">500L</div>
+                    <div class="resource-card__title display">International Law — Past Questions 2024</div>
+                    <div class="resource-card__type">Past Question</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">200L</div>
+                    <div class="resource-card__title display">Land Law — Comprehensive Notes</div>
+                    <div class="resource-card__type">Lecture Note</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+                <div class="resource-card" onclick="viewResource('https://drive.google.com/file/d/example/view')">
+                    <div class="resource-badge">500L</div>
+                    <div class="resource-card__title display">Taxation Law — Past Questions 2022–2024</div>
+                    <div class="resource-card__type">Past Question</div>
+                    <div class="resource-card__arrow">→</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+     SECTION: PAY DUES
+     ═══════════════════════════════════════════════════════════════ -->
+        <section id="pay" data-section="pay">
+            <div class="pay-layout">
+                <div class="pay-info">
+                    <div>
+                        <div class="section-num" style="color:#555;">[LAWSA — DUES]</div>
+                        <div class="pay-big display">Association<br><span class="text-gold">Dues</span></div>
+                        <p
+                            style="color:#777;margin-top:var(--s4);font-size:var(--t-sm);max-width:380px;line-height:1.75;">
+                            Paying your association dues is the first step to unlocking full membership benefits —
+                            including academic resources, event access, and welfare support. Payments are secure and
+                            instant.
+                        </p>
+                    </div>
+                    <div class="pay-cards">
+                        <div class="pay-card-type">
+                            <div class="pay-card-type__label">Faculty Dues</div>
+                            <div class="pay-card-type__amount display">₦3,000</div>
+                            <div class="pay-card-type__desc">Covers all LAWSA programs, events, resources, and advocacy
+                                for the 2025/2026 session.</div>
+                        </div>
+                    </div>
+                    <div class="bank-details"
+                        style="margin-top:var(--s4);padding:var(--s4);background:rgba(255,255,255,.08);border-radius:18px;">
+                        <div><strong>Bank Name:</strong> Fidelity Bank</div>
+                        <div><strong>Account Name:</strong> Law Students Association</div>
+                        <div><strong>Account Number:</strong> 6060197309</div>
+                        <div><strong>Dues Amount:</strong> ₦3,000</div>
+                    </div>
+                    <p class="pay-note">After payment, send a copy of your transfer receipt to WhatsApp at <strong>+234
+                            705 770 5284</strong>. Your payment will be reviewed and confirmed by the LAWSA finance
+                        team.</p>
+                </div>
+                <div class="pay-form-col">
+                    <div class="pay-form-title display">Pay Your Dues</div>
+                    <p class="pay-form-sub">Fill in your details below, then send your payment receipt to our WhatsApp
+                        number for confirmation.</p>
+                    <p style="margin-top:var(--s3);font-size:0.95rem;color:var(--text-m);">Official WhatsApp: 
+                            href="https://wa.me/2347057705284" target="_blank" rel="noopener">+234 705 770 5284</a></p>
+                    <form id="paymentForm">
+                        <div class="field">
+                            <label class="field__label">Full Name</label>
+                            <input type="text" class="field__input" id="payName" placeholder="John Doe" required>
+                            <span class="field__error" id="payNameErr"></span>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Matric Number</label>
+                            <input type="text" class="field__input" id="payMatric" placeholder="LAW/21/XXXX" required>
+                            <span class="field__error" id="payMatricErr"></span>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Academic Level</label>
+                            <select class="field__select" id="payLevel" required>
+                                <option value="">— Select your level —</option>
+                                <option value="100">100 Level</option>
+                                <option value="200">200 Level</option>
+                                <option value="300">300 Level</option>
+                                <option value="400">400 Level</option>
+                                <option value="500">500 Level</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Email Address</label>
+                            <input type="email" class="field__input" id="payEmail" placeholder="john@example.com"
+                                required>
+                            <span class="field__error" id="payEmailErr"></span>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Phone Number</label>
+                            <input type="tel" class="field__input" id="payPhone" placeholder="08012345678" required>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Payment Type</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="duesType" value="faculty" checked disabled> Faculty Dues —
+                                    ₦3,000
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn--gold"
+                            style="width:100%;margin-top:var(--s5);padding:1rem;" id="payBtn">
+                            Send Receipt via WhatsApp →
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Unified Footer (moved to bottom) -->
+    <div id="siteFooterContainer"></div>
+
+    <template id="siteFooterTemplate">
+        <footer class="footer">
+            <div class="footer-top container">
+                <div class="footer-brand">
+                    <div class="footer-logo display">
+                        <img src="./public/assets/images/logo-white.png" alt="LAWSA UNIBEN Logo"
+                    style="height: 100px;width:auto;margin-right:var(--s2); margin: 0 auto;">
+                        LAWSA <span>UNIBEN</span>
+                        
+                    </div>
+                    <p class="footer-tagline" style="text-align: center; margin: 0 auto;">Digital Home of the Law Students' Association, University of Benin. Built
+                        for clarity, connection, and excellence.</p>
+                </div>
+                <div>
+                    <div class="footer-col-title">Navigate</div>
+                    <nav class="footer-nav">
+                        <a data-nav="home">Home</a>
+                        <a data-nav="leaders">Leaders</a>
+                        <a data-nav="news">News & Updates</a>
+                        <a data-nav="resources">Resources</a>
+                        <a data-nav="store">Store</a>
+                        <a data-nav="pay">Pay Dues</a>
+                    </nav>
+                </div>
+                <div>
+                    <div class="footer-col-title">Association</div>
+                    <nav class="footer-nav">
+                        <a href="#">About LAWSA</a>
+                        <a href="#">Our Constitution</a>
+                        <a href="#">Achievements</a>
+                        <a href="#">Membership</a>
+                        <a href="#">FAQs</a>
+                    </nav>
+                </div>
+                <div class="footercontact">
+                    <div class="footercontactcontainer">
+                        <div class="footer-col-title">Contact</div>
+                        <nav class="footer-nav footercontactnav">
+                            <a href="mailto:lawsauniben24@gmail.com">lawsauniben24@gmail.com</a>
+                            <a href="https://wa.me/2347057705284" target="_blank" rel="noopener">+234 705 770 5284</a>
+                            <a href="#">Faculty of Law, UNIBEN</a>
+                            <a href="#">Benin City, Edo State</a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom container">
+                <div class="footer-copy">© 2026 LAWSA UNIBEN — All Rights Reserved · 2025/2026 Academic Session</div>
+                <div class="footer-credit">Designed & Developed by <a href="https://adisaactech.com.ng" target="_blank"
+                        rel="noopener">Adisaac Tech Innovations Ltd</a></div>
+            </div>
+        </footer>
+    </template>
+
+    <!-- Your main JS file -->
+    <script src="public/assets/js/main.js"></script>
+    <script src="public/assets/js/api.js"></script>
+    <script src="public/assets/js/store.js"></script>
+    <script src="public/assets/js/page.js"></script>
+
+</html>
