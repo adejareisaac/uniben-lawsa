@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>LAWSA UNIBEN • Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;700;900&family=Archivo:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-d: 'Big Shoulders Display', sans-serif;
+      --font-b: 'Archivo', sans-serif;
+      --bg: #F4F7FC;
+      --surface: #FFFFFF;
+      --navy: #132B4A;
+      --navy-light: #1B3D63;
+      --gold: #C39F33;
+      --gold-light: #E7D4A0;
+      --gold-bg: rgba(195, 159, 51, 0.08);
+      --text-h: #102D52;
+      --text-b: #1A1F2B;
+      --text-m: #5A6F8A;
+      --text-l: #8FA0B8;
+      --border: rgba(19, 43, 74, 0.1);
+      --border-light: rgba(19, 43, 74, 0.06);
+      --danger: #D73E1F;
+      --success: #1A7A4A;
+      --warning: #E8952E;
+      --white: #FFFFFF;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --s1: 0.25rem; --s2: 0.5rem; --s3: 0.75rem; --s4: 1rem;
+      --s5: 1.5rem; --s6: 2rem; --s7: 3rem; --s8: 4rem;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text-b);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ═══════════════ SIDEBAR ═══════════════ */
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, #0F2440 0%, #132B4A 100%);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      padding: var(--s6) 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .sidebar-header {
+      padding: 0 var(--s6) var(--s5);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: var(--s5);
+    }
+
+    .sidebar-logo {
+      font-family: var(--font-d);
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .sidebar-logo span { color: var(--gold); }
+
+    .sidebar-subtitle {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.4);
+      margin-top: var(--s2);
+    }
+
+    .sidebar-section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.3);
+      padding: var(--s4) var(--s6) var(--s2);
+      font-weight: 700;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 var(--s4);
+      flex: 1;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      padding: var(--s3) var(--s4);
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+      position: relative;
+    }
+
+    .sidebar-link .icon {
+      font-size: 1.2rem;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      transition: all 0.2s;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(195, 159, 51, 0.1);
+      color: var(--gold-light);
+    }
+
+    .sidebar-link:hover .icon {
+      background: rgba(195, 159, 51, 0.2);
+    }
+
+    .sidebar-link.active {
+      background: rgba(195, 159, 51, 0.18);
+      color: var(--gold);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(195, 159, 51, 0.1);
+    }
+
+    .sidebar-link.active .icon {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 20px;
+      background: var(--gold);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sidebar-footer {
+      padding: var(--s4) var(--s6);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: auto;
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+
+    .sidebar-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--navy);
+      font-family: var(--font-d);
+      font-size: 1.2rem;
+    }
+
+    .sidebar-user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-user-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: white;
+    }
+
+    .sidebar-user-role {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ═══════════════ MAIN CONTENT ═══════════════ */
+    .main {
+      margin-left: 280px;
+      flex: 1;
+      padding: var(--s6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--s5);
+      min-height: 100vh;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--s4);
+    }
+
+    .page-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s1);
+    }
+
+    .page-breadcrumb {
+      font-size: 0.75rem;
+      color: var(--text-l);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .page-title {
+      font-family: var(--font-d);
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--text-h);
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: -0.5px;
+    }
+
+    .page-title .gold { color: var(--gold); }
+
+    .header-actions {
+      display: flex;
+      gap: var(--s3);
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════════ CARDS ═══════════════ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--s6);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--s5);
+      flex-wrap: wrap;
+      gap: var(--s3);
+    }
+
+    .card-title {
+      font-family: var(--font-d);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-h);
+      text-transform: uppercase;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-m);
+    }
+
+    /* ═══════════════ STATS GRID ═══════════════ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--s4);
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--s5);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--s4);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s;
+      cursor: default;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold);
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.navy { background: rgba(19,43,74,0.1); }
+    .stat-icon.gold { background: var(--gold-bg); }
+    .stat-icon.green { background: rgba(26,122,74,0.1); }
+    .stat-icon.blue { background: rgba(59,130,246,0.1); }
+
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-l);
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-family: var(--font-d);
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--text-h);
+      line-height: 1;
+    }
+
+    .stat-change {
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .stat-change.up { color: var(--success); }
+    .stat-change.down { color: var(--danger); }
+
+    /* ═══════════════ BUTTONS ═══════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: 0.7rem 1.6rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.25s;
+      font-family: var(--font-b);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--navy);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--navy-light);
+      box-shadow: 0 4px 12px rgba(19,43,74,0.3);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: white;
+      font-weight: 700;
+    }
+    .btn-gold:hover {
+      background: #D4B045;
+      box-shadow: 0 4px 12px rgba(195,159,51,0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-m);
+    }
+    .btn-outline:hover {
+      border-color: var(--navy);
+      color: var(--navy);
+      background: rgba(19,43,74,0.03);
+    }
+
+    .btn-sm {
+      padding: 0.4rem 1rem;
+      font-size: 0.7rem;
+      border-radius: 30px;
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ═══════════════ TABLE ═══════════════ */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      background: #F8FAFD;
+      color: var(--text-m);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-size: 0.7rem;
+      padding: var(--s3) var(--s4);
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+
+    tbody td {
+      padding: var(--s3) var(--s4);
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-b);
+    }
+
+    tbody tr {
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover {
+      background: rgba(195,159,51,0.03);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-success { background: rgba(26,122,74,0.1); color: var(--success); }
+    .badge-warning { background: rgba(232,149,46,0.1); color: var(--warning); }
+    .badge-info { background: rgba(59,130,246,0.1); color: #3B82F6; }
+    .badge-default { background: rgba(0,0,0,0.05); color: var(--text-m); }
+
+    /* ═══════════════ EMPTY STATE ═══════════════ */
+    .empty-state {
+      text-align: center;
+      padding: var(--s8) var(--s4);
+      color: var(--text-l);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: var(--s4);
+      opacity: 0.6;
+    }
+
+    .empty-state-title {
+      font-family: var(--font-d);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-m);
+      text-transform: uppercase;
+      margin-bottom: var(--s2);
+    }
+
+    .empty-state-text {
+      font-size: 0.9rem;
+      max-width: 400px;
+      margin: 0 auto var(--s5);
+      color: var(--text-l);
+    }
+
+    /* ═══════════════ FORM ELEMENTS ═══════════════ */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+      margin-bottom: var(--s4);
+    }
+
+    .form-label {
+      font-weight: 700;
+      font-size: 0.72rem;
+      color: var(--text-m);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      padding: var(--s3) var(--s4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-b);
+      font-size: 0.9rem;
+      background: var(--bg);
+      color: var(--text-b);
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(195,159,51,0.1);
+    }
+
+    .form-textarea { resize: vertical; min-height: 100px; }
+
+    /* ═══════════════ MODAL ═══════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,36,64,0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: var(--s4);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: var(--s6);
+      max-width: 640px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--s5);
+    }
+
+    .modal-title {
+      font-family: var(--font-d);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-h);
+      text-transform: uppercase;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: var(--text-m);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════ RECENT ACTIVITY ═══════════════ */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--s3);
+      padding: var(--s3) 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .activity-dot.gold { background: var(--gold); }
+    .activity-dot.navy { background: var(--navy); }
+    .activity-dot.green { background: var(--success); }
+
+    .activity-content {
+      flex: 1;
+      font-size: 0.85rem;
+    }
+
+    .activity-time {
+      font-size: 0.7rem;
+      color: var(--text-l);
+    }
+
+    /* ═══════════════ RESPONSIVE ═══════════════ */
+    @media (max-width: 1024px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 0 0 40px rgba(0,0,0,0.3);
+      }
+      .main {
+        margin-left: 0;
+      }
+      .mobile-toggle {
+        display: flex !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        padding: var(--s4);
+      }
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .page-title {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .mobile-toggle {
+      display: none;
+      position: fixed;
+      top: var(--s4);
+      left: var(--s4);
+      z-index: 200;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: white;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .section-hidden {
+      display: none !important;
+    }
+
+    .section-visible {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Toggle -->
+  <button class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">LAWSA <span>ADMIN</span></div>
+      <div class="sidebar-subtitle">Management Console</div>
+    </div>
+
+    <div class="sidebar-section-label">Main Navigation</div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <button class="sidebar-link active" data-page="dashboard">
+        <span class="icon">📊</span> Dashboard
+      </button>
+      <button class="sidebar-link" data-page="sessions">
+        <span class="icon">📅</span> Academic Sessions
+      </button>
+      <button class="sidebar-link" data-page="leadership">
+        <span class="icon">👥</span> Leadership
+      </button>
+      <button class="sidebar-link" data-page="content">
+        <span class="icon">📰</span> News & Content
+      </button>
+      <button class="sidebar-link" data-page="resources">
+        <span class="icon">📚</span> Resources
+      </button>
+      <button class="sidebar-link" data-page="payments">
+        <span class="icon">💰</span> Dues & Payments
+      </button>
+      <button class="sidebar-link" data-page="store">
+        <span class="icon">🛒</span> Store
+      </button>
+      <button class="sidebar-link" data-page="events">
+        <span class="icon">🎉</span> Events
+      </button>
+    </nav>
+
+    <div class="sidebar-section-label">Administration</div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link" data-page="users">
+        <span class="icon">🔑</span> Users & Roles
+      </button>
+      <button class="sidebar-link" data-page="settings">
+        <span class="icon">⚙️</span> Settings
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-user-info">
+          <span class="sidebar-user-name">Admin User</span>
+          <span class="sidebar-user-role">Super Administrator</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+  <main class="main" id="mainContent">
+    <!-- Dynamically rendered by JS -->
+  </main>
+
+  <!-- Modal Container -->
+  <div id="modalContainer"></div>
+
+  <script>
+    // ═══════════════════════════════════════
+    // SUPABASE CLIENT (replace with real keys)
+    // ═══════════════════════════════════════
+    const SUPABASE_URL = 'https://your-project.supabase.co';
+    const SUPABASE_ANON = 'your-anon-key';
+    // let supabase = null;
+    try {
+      if (window.supabase && SUPABASE_URL !== 'https://your-project.supabase.co') {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+      }
+    } catch (e) {
+      console.log('Supabase not configured yet — running in demo mode');
+    }
+
+    // ═══════════════════════════════════════
+    // STATE MANAGEMENT
+    // ═══════════════════════════════════════
+    let currentPage = 'dashboard';
+    const pageRenderers = {};
+    const pageLoaders = {};
+
+    function registerPage(name, renderer, loader) {
+      pageRenderers[name] = renderer;
+      if (loader) pageLoaders[name] = loader;
+    }
+
+    // ═══════════════════════════════════════
+    // NAVIGATION
+    // ═══════════════════════════════════════
+    window.navigateTo = function(pageName) {
+      currentPage = pageName;
+
+      // Update sidebar active state
+      document.querySelectorAll('.sidebar-link').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.page === pageName);
+      });
+
+      // Update admin nav sidebar links too
+      document.querySelectorAll('.sidebar-nav .sidebar-link').forEach(btn => {
+        if (btn.dataset.page) {
+          btn.classList.toggle('active', btn.dataset.page === pageName);
+        }
+      });
+
+      // Render the page
+      if (pageRenderers[pageName]) {
+        document.getElementById('mainContent').innerHTML = pageRenderers[pageName]();
+      }
+
+      // Close mobile sidebar
+      document.getElementById('sidebar').classList.remove('open');
+
+      // Scroll to top
+      document.getElementById('mainContent').scrollTop = 0;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Load data after render
+      if (pageLoaders[pageName]) {
+        setTimeout(() => pageLoaders[pageName](), 100);
+      }
+    }
+
+    window.toggleSidebar = function () {
+    document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+    };
+
+    // Attach click handlers to ALL sidebar links
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const page = this.dataset.page;
+          if (page) navigateTo(page);
+        });
+      });
+
+      // Initial render
+      navigateTo('dashboard');
+    });
+
+    // ═══════════════════════════════════════
+    // HELPER: Close modal
+    // ═══════════════════════════════════════
+    window.closeModal = function(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.remove();
+    };
+
+    window.closeAnyModal = function() {
+      document.getElementById('modalContainer').innerHTML = '';
+    };
+
+    // ═══════════════════════════════════════
+    // HELPER: Show toast
+    // ═══════════════════════════════════════
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed; bottom: 24px; right: 24px; z-index: 999;
+        background: ${type === 'success' ? 'var(--success)' : 'var(--danger)'};
+        color: white; padding: 12px 24px; border-radius: 40px;
+        font-weight: 600; font-size: 0.85rem; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        animation: slideUp 0.3s ease;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ═══════════════════════════════════════
+    // 1. DASHBOARD PAGE
+    // ═══════════════════════════════════════
+    registerPage('dashboard', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Home / Overview</div>
+            <div class="page-title">Dash<span class="gold">board</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="navigateTo('sessions')">📅 Manage Sessions</button>
+            <button class="btn btn-gold" onclick="navigateTo('content')">✏️ New Post</button>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="dashboardStats">
+          <div class="stat-card">
+            <div class="stat-icon navy">📅</div>
+            <div class="stat-content">
+              <span class="stat-label">Academic Sessions</span>
+              <span class="stat-value" id="statSessions">—</span>
+              <span class="stat-change up">Active session: 2025/2026</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gold">👥</div>
+            <div class="stat-content">
+              <span class="stat-label">Leadership Members</span>
+              <span class="stat-value" id="statLeaders">—</span>
+              <span class="stat-change">Across all branches</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📰</div>
+            <div class="stat-content">
+              <span class="stat-label">News Posts</span>
+              <span class="stat-value" id="statNews">—</span>
+              <span class="stat-change up">Published content</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">📚</div>
+            <div class="stat-content">
+              <span class="stat-label">Resources</span>
+              <span class="stat-value" id="statResources">—</span>
+              <span class="stat-change">Academic materials</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gold">💰</div>
+            <div class="stat-content">
+              <span class="stat-label">Payments Received</span>
+              <span class="stat-value" id="statPayments">—</span>
+              <span class="stat-change up">Dues & store</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon navy">🛒</div>
+            <div class="stat-content">
+              <span class="stat-label">Store Items</span>
+              <span class="stat-value" id="statStore">—</span>
+              <span class="stat-change">Merchandise</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent Activity</div>
+              <div class="card-subtitle">Latest actions across the platform</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="navigateTo('payments')">View All →</button>
+          </div>
+          <div class="activity-list" id="activityList">
+            <div class="activity-item">
+              <div class="activity-dot gold"></div>
+              <div class="activity-content">
+                <strong>System Ready</strong> — Dashboard is active and monitoring all sections.
+                <div class="activity-time">Just now</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot navy"></div>
+              <div class="activity-content">
+                <strong>No data yet</strong> — Connect Supabase or add data manually to see live statistics.
+                <div class="activity-time">—</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot green"></div>
+              <div class="activity-content">
+                <strong>Navigation Active</strong> — Use the sidebar to switch between management sections.
+                <div class="activity-time">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quick Actions</div>
+          </div>
+          <div style="display:flex;gap:var(--s3);flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="navigateTo('sessions')">📅 Add Session</button>
+            <button class="btn btn-gold" onclick="navigateTo('leadership')">👤 Add Leader</button>
+            <button class="btn btn-outline" onclick="navigateTo('content')">📝 Write Post</button>
+            <button class="btn btn-outline" onclick="navigateTo('resources')">📚 Upload Resource</button>
+            <button class="btn btn-outline" onclick="navigateTo('store')">🛒 Add Product</button>
+          </div>
+        </div>
+      `;
+    }, async function loadDashboard() {
+      // Update stats with real or placeholder data
+      const updateStat = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
+
+      // If Supabase is connected, fetch real data
+      if (supabase) {
+        try {
+          const [sessions, leaders, news, resources, payments, store] = await Promise.all([
+            supabase.from('academic_sessions').select('id', { count: 'exact', head: true }),
+            supabase.from('leadership').select('id', { count: 'exact', head: true }),
+            supabase.from('news_posts').select('id', { count: 'exact', head: true }),
+            supabase.from('resources').select('id', { count: 'exact', head: true }),
+            supabase.from('payments').select('id', { count: 'exact', head: true }),
+            supabase.from('store_items').select('id', { count: 'exact', head: true }),
+          ]);
+          updateStat('statSessions', sessions.count || 0);
+          updateStat('statLeaders', leaders.count || 0);
+          updateStat('statNews', news.count || 0);
+          updateStat('statResources', resources.count || 0);
+          updateStat('statPayments', payments.count || 0);
+          updateStat('statStore', store.count || 0);
+        } catch (e) {
+          console.log('Could not fetch stats:', e);
+          updateStat('statSessions', '—');
+          updateStat('statLeaders', '—');
+          updateStat('statNews', '—');
+          updateStat('statResources', '—');
+          updateStat('statPayments', '—');
+          updateStat('statStore', '—');
+        }
+      } else {
+        // Demo mode — show dashes (already default)
+        updateStat('statSessions', '—');
+        updateStat('statLeaders', '—');
+        updateStat('statNews', '—');
+        updateStat('statResources', '—');
+        updateStat('statPayments', '—');
+        updateStat('statStore', '—');
+      }
+    });
+
+    // ═══════════════════════════════════════
+    // 2. ACADEMIC SESSIONS PAGE
+    // ═══════════════════════════════════════
+    registerPage('sessions', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Management / Academic</div>
+            <div class="page-title">Academic <span class="gold">Sessions</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="openSessionModal()">+ Add New Session</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">All Sessions</div>
+              <div class="card-subtitle">Manage academic years and their status</div>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Session Name</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sessionsTableBody">
+                <tr>
+                  <td colspan="5">
+                    <div class="empty-state">
+                      <div class="empty-state-icon">📅</div>
+                      <div class="empty-state-title">No Sessions Yet</div>
+                      <div class="empty-state-text">Create your first academic session to start managing the platform timeline.</div>
+                      <button class="btn btn-gold" onclick="openSessionModal()">+ Create First Session</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }, async function loadSessions() {
+      if (!supabase) {
+        // Demo: leave empty state
+        return;
+      }
+      const { data } = await supabase.from('academic_sessions').select('*').order('created_at', { ascending: false });
+      const tbody = document.getElementById('sessionsTableBody');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-title">No Sessions Yet</div><div class="empty-state-text">Create your first academic session.</div><button class="btn btn-gold" onclick="openSessionModal()">+ Create First Session</button></div></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.map(s => `
+        <tr>
+          <td><strong>${s.name || '—'}</strong></td>
+          <td>${s.start_date || '—'}</td>
+          <td>${s.end_date || '—'}</td>
+          <td><span class="badge ${s.is_active ? 'badge-success' : 'badge-default'}">${s.is_active ? 'Active' : 'Inactive'}</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="openSessionModal('${s.id}')">Edit</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);" onclick="deleteSession('${s.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    });
+
+    window.openSessionModal = function(id = null) {
+      const isEdit = !!id;
+      document.getElementById('modalContainer').innerHTML = `
+        <div class="modal-overlay" id="sessionModal">
+          <div class="modal-box">
+            <div class="modal-header">
+              <div class="modal-title">${isEdit ? 'Edit' : 'New'} Session</div>
+              <button class="modal-close" onclick="closeModal('sessionModal')">✕</button>
+            </div>
+            <form id="sessionForm" onsubmit="saveSession(event, '${id || ''}')">
+              <div class="form-group">
+                <label class="form-label">Session Name *</label>
+                <input class="form-input" id="sessName" placeholder="e.g. 2025/2026" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Start Date</label>
+                <input class="form-input" type="date" id="sessStart">
+              </div>
+              <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input class="form-input" type="date" id="sessEnd">
+              </div>
+              <div class="form-group">
+                <label class="form-label">
+                  <input type="checkbox" id="sessActive" style="width:auto;margin-right:8px;"> Mark as Active Session
+                </label>
+              </div>
+              <div style="display:flex;gap:var(--s3);">
+                <button type="submit" class="btn btn-gold">💾 Save Session</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('sessionModal')">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+
+      if (isEdit && supabase) {
+        supabase.from('academic_sessions').select('*').eq('id', id).single().then(({ data }) => {
+          if (data) {
+            document.getElementById('sessName').value = data.name || '';
+            document.getElementById('sessStart').value = data.start_date || '';
+            document.getElementById('sessEnd').value = data.end_date || '';
+            document.getElementById('sessActive').checked = data.is_active || false;
+          }
+        });
+      }
+    };
+
+    window.saveSession = async function(event, id) {
+      event.preventDefault();
+      const payload = {
+        name: document.getElementById('sessName').value,
+        start_date: document.getElementById('sessStart').value,
+        end_date: document.getElementById('sessEnd').value,
+        is_active: document.getElementById('sessActive').checked,
+      };
+
+      if (supabase) {
+        if (id) {
+          await supabase.from('academic_sessions').update(payload).eq('id', id);
+        } else {
+          await supabase.from('academic_sessions').insert(payload);
+        }
+      } else {
+        // Demo mode: save to localStorage
+        const sessions = JSON.parse(localStorage.getItem('lawsa_sessions') || '[]');
+        if (id) {
+          const idx = sessions.findIndex(s => s.id === id);
+          if (idx >= 0) sessions[idx] = { ...sessions[idx], ...payload, id };
+        } else {
+          sessions.push({ ...payload, id: 'local_' + Date.now(), created_at: new Date().toISOString() });
+        }
+        localStorage.setItem('lawsa_sessions', JSON.stringify(sessions));
+      }
+
+      closeModal('sessionModal');
+      showToast(id ? 'Session updated!' : 'Session created!');
+      if (pageLoaders['sessions']) pageLoaders['sessions']();
+    };
+
+    window.deleteSession = async function(id) {
+      if (!confirm('Delete this session? This cannot be undone.')) return;
+      if (supabase) {
+        await supabase.from('academic_sessions').delete().eq('id', id);
+      } else {
+        const sessions = JSON.parse(localStorage.getItem('lawsa_sessions') || '[]');
+        localStorage.setItem('lawsa_sessions', JSON.stringify(sessions.filter(s => s.id !== id)));
+      }
+      showToast('Session deleted.', 'error');
+      if (pageLoaders['sessions']) pageLoaders['sessions']();
+    };
+
+    // ═══════════════════════════════════════
+    // 3. LEADERSHIP PAGE
+    // ═══════════════════════════════════════
+    registerPage('leadership', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Management / People</div>
+            <div class="page-title">Leader<span class="gold">ship</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="openLeaderModal()">+ Add Leader</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Leadership Directory</div>
+              <div class="card-subtitle">Executive, Legislative, Judiciary & Past Presidents</div>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Name</th><th>Role</th><th>Branch</th><th>Session</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="leadersTableBody">
+                <tr><td colspan="5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <div class="empty-state-title">No Leaders Added</div>
+                    <div class="empty-state-text">Start building the leadership directory by adding members.</div>
+                    <button class="btn btn-gold" onclick="openLeaderModal()">+ Add First Leader</button>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    window.openLeaderModal = function(id = null) {
+      document.getElementById('modalContainer').innerHTML = `
+        <div class="modal-overlay" id="leaderModal">
+          <div class="modal-box">
+            <div class="modal-header">
+              <div class="modal-title">${id ? 'Edit' : 'New'} Leader</div>
+              <button class="modal-close" onclick="closeModal('leaderModal')">✕</button>
+            </div>
+            <form onsubmit="saveLeader(event, '${id || ''}')">
+              <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="lname" required></div>
+              <div class="form-group"><label class="form-label">Role *</label><input class="form-input" id="lrole" placeholder="e.g. President" required></div>
+              <div class="form-group"><label class="form-label">Branch</label>
+                <select class="form-select" id="lbranch">
+                  <option value="executive">Executive</option>
+                  <option value="legislative">Legislative</option>
+                  <option value="judiciary">Judiciary</option>
+                  <option value="lsba">Law Students Bar Association</option>
+                  <option value="previous">Previous Presidents</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Session</label><input class="form-input" id="lsession" placeholder="e.g. 2025/2026"></div>
+              <div class="form-group"><label class="form-label">Bio</label><textarea class="form-textarea" id="lbio" rows="3"></textarea></div>
+              <div style="display:flex;gap:var(--s3);">
+                <button type="submit" class="btn btn-gold">💾 Save Leader</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('leaderModal')">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    };
+
+    window.saveLeader = async function(event, id) {
+      event.preventDefault();
+      const payload = {
+        full_name: document.getElementById('lname').value,
+        role: document.getElementById('lrole').value,
+        branch: document.getElementById('lbranch').value,
+        session: document.getElementById('lsession').value,
+        bio: document.getElementById('lbio').value,
+      };
+      if (supabase) {
+        if (id) await supabase.from('leadership').update(payload).eq('id', id);
+        else await supabase.from('leadership').insert(payload);
+      } else {
+        const leaders = JSON.parse(localStorage.getItem('lawsa_leaders') || '[]');
+        if (id) {
+          const idx = leaders.findIndex(l => l.id === id);
+          if (idx >= 0) leaders[idx] = { ...leaders[idx], ...payload, id };
+        } else {
+          leaders.push({ ...payload, id: 'local_' + Date.now() });
+        }
+        localStorage.setItem('lawsa_leaders', JSON.stringify(leaders));
+      }
+      closeModal('leaderModal');
+      showToast(id ? 'Leader updated!' : 'Leader added!');
+    };
+
+    // ═══════════════════════════════════════
+    // 4. CONTENT (NEWS) PAGE
+    // ═══════════════════════════════════════
+    registerPage('content', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Management / Content</div>
+            <div class="page-title">News & <span class="gold">Content</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="openNewsModal()">+ New Post</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">All Posts</div>
+              <div class="card-subtitle">Announcements, events & press releases</div>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+              <tbody id="newsTableBody">
+                <tr><td colspan="5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">📰</div>
+                    <div class="empty-state-title">No Posts Yet</div>
+                    <div class="empty-state-text">Create your first news post or announcement.</div>
+                    <button class="btn btn-gold" onclick="openNewsModal()">+ Write First Post</button>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    window.openNewsModal = function() {
+      document.getElementById('modalContainer').innerHTML = `
+        <div class="modal-overlay" id="newsModal">
+          <div class="modal-box">
+            <div class="modal-header">
+              <div class="modal-title">New Post</div>
+              <button class="modal-close" onclick="closeModal('newsModal')">✕</button>
+            </div>
+            <form onsubmit="saveNews(event)">
+              <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="ntitle" required></div>
+              <div class="form-group"><label class="form-label">Category</label>
+                <select class="form-select" id="ncat">
+                  <option value="Announcements">Announcements</option>
+                  <option value="Events">Events</option>
+                  <option value="Press">Press</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Content *</label><textarea class="form-textarea" id="nbody" rows="6" required></textarea></div>
+              <button type="submit" class="btn btn-gold">📝 Publish Post</button>
+            </form>
+          </div>
+        </div>
+      `;
+    };
+
+    window.saveNews = async function(event) {
+      event.preventDefault();
+      const payload = {
+        title: document.getElementById('ntitle').value,
+        category: document.getElementById('ncat').value,
+        body: document.getElementById('nbody').value,
+        published_at: new Date().toISOString(),
+      };
+      if (supabase) {
+        await supabase.from('news_posts').insert(payload);
+      } else {
+        const posts = JSON.parse(localStorage.getItem('lawsa_news') || '[]');
+        posts.push({ ...payload, id: 'local_' + Date.now() });
+        localStorage.setItem('lawsa_news', JSON.stringify(posts));
+      }
+      closeModal('newsModal');
+      showToast('Post published!');
+    };
+
+    // ═══════════════════════════════════════
+    // 5. RESOURCES PAGE
+    // ═══════════════════════════════════════
+    registerPage('resources', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Management / Academic</div>
+            <div class="page-title"><span class="gold">Resources</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="openResourceModal()">+ Add Resource</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Resource Library</div></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Title</th><th>Level</th><th>Type</th><th>Category</th><th>Actions</th></tr></thead>
+              <tbody id="resourcesTableBody">
+                <tr><td colspan="5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">📚</div>
+                    <div class="empty-state-title">No Resources</div>
+                    <div class="empty-state-text">Upload past questions, lecture notes, and reference materials.</div>
+                    <button class="btn btn-gold" onclick="openResourceModal()">+ Add First Resource</button>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    window.openResourceModal = function() {
+      document.getElementById('modalContainer').innerHTML = `
+        <div class="modal-overlay" id="resourceModal">
+          <div class="modal-box">
+            <div class="modal-header"><div class="modal-title">Add Resource</div><button class="modal-close" onclick="closeModal('resourceModal')">✕</button></div>
+            <form onsubmit="saveResource(event)">
+              <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="rtitle" required></div>
+              <div class="form-group"><label class="form-label">Level</label><select class="form-select" id="rlevel"><option value="100">100</option><option value="200">200</option><option value="300">300</option><option value="400">400</option><option value="500">500</option><option value="0">General</option></select></div>
+              <div class="form-group"><label class="form-label">Type</label><input class="form-input" id="rtype" placeholder="Past Question, Lecture Note, etc."></div>
+              <div class="form-group"><label class="form-label">Drive Link</label><input class="form-input" id="rlink" placeholder="https://drive.google.com/..."></div>
+              <button type="submit" class="btn btn-gold">💾 Save Resource</button>
+            </form>
+          </div>
+        </div>
+      `;
+    };
+
+    window.saveResource = async function(event) {
+      event.preventDefault();
+      const payload = {
+        title: document.getElementById('rtitle').value,
+        academic_level: parseInt(document.getElementById('rlevel').value),
+        resource_type: document.getElementById('rtype').value,
+        drive_link: document.getElementById('rlink').value,
+      };
+      if (supabase) {
+        await supabase.from('resources').insert(payload);
+      } else {
+        const resources = JSON.parse(localStorage.getItem('lawsa_resources') || '[]');
+        resources.push({ ...payload, id: 'local_' + Date.now() });
+        localStorage.setItem('lawsa_resources', JSON.stringify(resources));
+      }
+      closeModal('resourceModal');
+      showToast('Resource added!');
+    };
+
+    // ═══════════════════════════════════════
+    // 6. PAYMENTS PAGE
+    // ═══════════════════════════════════════
+    registerPage('payments', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Management / Finance</div>
+            <div class="page-title">Dues & <span class="gold">Payments</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payment Records</div></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Student</th><th>Matric No.</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+              <tbody id="paymentsTableBody">
+                <tr><td colspan="5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">💰</div>
+                    <div class="empty-state-title">No Payments Yet</div>
+                    <div class="empty-state-text">Payment records will appear here once students start paying dues.</div>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    // ═══════════════════════════════════════
+    // 7. STORE PAGE
+    // ═══════════════════════════════════════
+    registerPage('store', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Management / Commerce</div>
+            <div class="page-title"><span class="gold">Store</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="openStoreModal()">+ Add Product</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Products</div></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Product</th><th>Price</th><th>SKU</th><th>Stock</th><th>Actions</th></tr></thead>
+              <tbody id="storeTableBody">
+                <tr><td colspan="5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">🛒</div>
+                    <div class="empty-state-title">No Products</div>
+                    <div class="empty-state-text">Add LAWSA merchandise and items for sale.</div>
+                    <button class="btn btn-gold" onclick="openStoreModal()">+ Add First Product</button>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    window.openStoreModal = function() {
+      document.getElementById('modalContainer').innerHTML = `
+        <div class="modal-overlay" id="storeModal">
+          <div class="modal-box">
+            <div class="modal-header"><div class="modal-title">Add Product</div><button class="modal-close" onclick="closeModal('storeModal')">✕</button></div>
+            <form onsubmit="saveProduct(event)">
+              <div class="form-group"><label class="form-label">Product Name *</label><input class="form-input" id="pname" required></div>
+              <div class="form-group"><label class="form-label">Price (₦) *</label><input class="form-input" type="number" id="pprice" required></div>
+              <div class="form-group"><label class="form-label">SKU</label><input class="form-input" id="psku"></div>
+              <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="pdesc" rows="3"></textarea></div>
+              <button type="submit" class="btn btn-gold">💾 Save Product</button>
+            </form>
+          </div>
+        </div>
+      `;
+    };
+
+    window.saveProduct = async function(event) {
+      event.preventDefault();
+      const payload = {
+        name: document.getElementById('pname').value,
+        price: parseFloat(document.getElementById('pprice').value),
+        sku: document.getElementById('psku').value,
+        description: document.getElementById('pdesc').value,
+      };
+      if (supabase) {
+        await supabase.from('store_items').insert(payload);
+      } else {
+        const products = JSON.parse(localStorage.getItem('lawsa_store') || '[]');
+        products.push({ ...payload, id: 'local_' + Date.now() });
+        localStorage.setItem('lawsa_store', JSON.stringify(products));
+      }
+      closeModal('storeModal');
+      showToast('Product added!');
+    };
+
+    // ═══════════════════════════════════════
+    // 8. EVENTS PAGE
+    // ═══════════════════════════════════════
+    registerPage('events', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Management / Activities</div>
+            <div class="page-title"><span class="gold">Events</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="showToast('Event form coming soon!')">+ Add Event</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">🎉</div>
+            <div class="empty-state-title">Events Calendar</div>
+            <div class="empty-state-text">Manage Law Week, moot court, dinners, and all LAWSA events.</div>
+          </div>
+        </div>
+      `;
+    });
+
+    // ═══════════════════════════════════════
+    // 9. USERS PAGE
+    // ═══════════════════════════════════════
+    registerPage('users', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Administration / Access</div>
+            <div class="page-title">Users & <span class="gold">Roles</span></div>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="showToast('User management coming soon!')">+ Add User</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">🔑</div>
+            <div class="empty-state-title">Admin Users</div>
+            <div class="empty-state-text">Manage who has access to this dashboard and their permissions.</div>
+          </div>
+        </div>
+      `;
+    });
+
+    // ═══════════════════════════════════════
+    // 10. SETTINGS PAGE
+    // ═══════════════════════════════════════
+    registerPage('settings', () => {
+      return `
+        <div class="page-header">
+          <div class="page-title-group">
+            <div class="page-breadcrumb">Administration / Config</div>
+            <div class="page-title"><span class="gold">Settings</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Platform Configuration</div></div>
+          <div class="form-group">
+            <label class="form-label">Association Name</label>
+            <input class="form-input" value="LAWSA UNIBEN" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Supabase Connection</label>
+            <input class="form-input" value="${SUPABASE_URL === 'https://your-project.supabase.co' ? 'Not configured (Demo Mode)' : 'Connected ✅'}" disabled>
+          </div>
+          <div class="empty-state" style="padding:var(--s4);">
+            <div class="empty-state-text">Full settings panel — logo upload, social links, WhatsApp group URL, bank details — coming soon.</div>
+          </div>
+        </div>
+      `;
+    });
+
+    // ═══════════════════════════════════════
+    // INITIALIZATION
+    // ═══════════════════════════════════════
+    console.log('🚀 LAWSA UNIBEN Admin Dashboard Ready');
+    console.log('📂 Supabase:', supabase ? 'Connected' : 'Demo Mode (localStorage)');
+    console.log('📋 Available pages: dashboard, sessions, leadership, content, resources, payments, store, events, users, settings');
+    console.log('💡 Click sidebar links to navigate between sections');
+  </script>
+</body>
+</html>
