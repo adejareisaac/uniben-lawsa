@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAWSA Portal — Administrative Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --navy-dark: #0A1428;
+      --navy-medium: #112240;
+      --navy-light: #1A365D;
+      --gold: #C5A880;
+      --gold-hover: #E5C79E;
+      --text-white: #F4F6F9;
+      --text-muted: #8892B0;
+      --danger: #FF4D4D;
+      --success: #2ECC71;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--navy-dark);
+      color: var(--text-white);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% 30%, rgba(197, 168, 128, 0.08) 0%, transparent 70%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--navy-medium);
+      border: 1px solid rgba(197, 168, 128, 0.15);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      z-index: 2;
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-header .crest {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .login-header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .login-header p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(10, 20, 40, 0.6);
+      border: 1px solid rgba(197, 168, 128, 0.25);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--text-white);
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.15);
+      background: rgba(10, 20, 40, 0.9);
+    }
+
+    .btn-login {
+      width: 100%;
+      background: var(--gold);
+      color: var(--navy-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover {
+      background: var(--gold-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(197, 168, 128, 0.2);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .btn-login:disabled {
+      background: var(--text-muted);
+      color: rgba(255,255,255,0.5);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .alert-danger {
+      background: rgba(255, 77, 77, 0.15);
+      border: 1px solid var(--danger);
+      color: #FF8080;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid transparent;
+      border-top-color: var(--navy-dark);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-header">
+      <div class="crest">⚖️</div>
+      <h1>LAWSA PORTAL</h1>
+      <p>Administrative Console</p>
+    </div>
+
+    <div class="alert alert-danger" id="errorMessage"></div>
+
+    <form id="loginForm" onsubmit="executeSecureLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <div class="input-wrapper">
+          <input type="email" id="email" class="form-input" placeholder="admin@lawsa.org" required autocomplete="username">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-wrapper">
+          <input type="password" id="password" class="form-input" placeholder="••••••••••••" required autocomplete="current-password">
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="submitBtn">
+        <span id="btnText">🔒 Authorize Secure Session</span>
+        <div class="spinner" id="btnSpinner"></div>
+      </button>
+    </form>
+
+    <div class="footer-note">
+      Law Students' Association &copy; 2026 <br> Secure Encryption Verification Node
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // System Configurations matching admin.js credentials exactly
+    const SUPABASE_URL = "https://zexamxpnccxsrxlcgosh.supabase.co";
+    const SUPABASE_ANON = "sb_publishable_6GeUzm1SYyFgvaWBOJGKeA_MmZMtSJl";
+    
+    // Renamed instance to supabaseClient to completely fix the naming clash
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // Initial Active-Session Bypass Shield
+    async function evaluateExistingSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        console.log("Active credential tokens validated. Routing instantly...");
+        window.location.href = 'admin.html';
+      }
+    }
+    evaluateExistingSession();
+
+    // Sign-In Transaction Executer
+    async function executeSecureLogin(event) {
+      event.preventDefault();
+
+      const emailInput = document.getElementById('email').value.trim();
+      const passwordInput = document.getElementById('password').value;
+      
+      const errorEl = document.getElementById('errorMessage');
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+
+      // Clear layout alerts & engage layout loader state
+      errorEl.style.display = 'none';
+      submitBtn.disabled = true;
+      btnText.textContent = "Verifying Credentials...";
+      btnSpinner.style.display = 'block';
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: emailInput,
+          password: passwordInput
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data.session) {
+          // Success! Pass control directly down to console workspace page
+          window.location.href = 'admin.html';
+        }
+      } catch (err) {
+        console.error("Authentication fault:", err.message);
+        errorEl.textContent = err.message || "Invalid credentials or unauthorized access.";
+        errorEl.style.display = 'block';
+        
+        // Reset interactive elements back to default control form
+        submitBtn.disabled = false;
+        btnText.textContent = "🔒 Authorize Secure Session";
+        btnSpinner.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
