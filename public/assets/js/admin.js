@@ -52,9 +52,9 @@ async function updateSidebarUser(user) {
     const role = adminData?.role || 'viewer';
 
     // Update sidebar
-    const sidebarUserName = document.querySelector('.sidebar-user-name');
-    const sidebarUserRole = document.querySelector('.sidebar-user-role');
-    const sidebarAvatar = document.querySelector('.sidebar-avatar');
+    const sidebarUserName = document.getElementById('sidebarUserName');
+const sidebarUserRole = document.getElementById('sidebarUserRole');
+const sidebarAvatar = document.getElementById('sidebarAvatar');
 
     if (sidebarUserName) sidebarUserName.textContent = userName;
     if (sidebarUserRole) sidebarUserRole.textContent = role.replace('_', ' ');
@@ -130,6 +130,15 @@ window.toggleSidebar = function () {
         toggle.innerHTML = isOpen ? '✕' : '☰';
     }
 };
+
+async function logout() {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+        showToast("Logout failed: " + error.message, 'error');
+    } else {
+        window.location.href = 'login.html';
+    }
+}
 
 // ═══════════════ HELPERS ═══════════════
 window.closeModal = function (modalId) {

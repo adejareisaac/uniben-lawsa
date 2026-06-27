@@ -878,14 +878,17 @@
       </button>
     </nav>
 
-    <div class="sidebar-footer">
+        <div class="sidebar-footer">
       <div class="sidebar-user">
-        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-avatar" id="sidebarAvatar">A</div>
         <div class="sidebar-user-info">
-          <span class="sidebar-user-name">Admin User</span>
-          <span class="sidebar-user-role">Super Administrator</span>
+          <span class="sidebar-user-name" id="sidebarUserName">Admin User</span>
+          <span class="sidebar-user-role" id="sidebarUserRole">Super Administrator</span>
         </div>
       </div>
+      <button class="btn btn-outline btn-sm" onclick="logout()" style="margin-top:12px; width:100%; color:white; border-color:rgba(255,255,255,0.3);">
+        🚪 Sign Out
+      </button>
     </div>
   </aside>
 
