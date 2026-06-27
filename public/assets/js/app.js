@@ -124,13 +124,161 @@ function toggleFaq(el) {
     if (!wasOpen) item.classList.add('open');
 }
 
-function setLeaderBranch(branch, pill) {
+window.setLeaderBranch = function(branch, pill) {
     document.querySelectorAll('.branch-pill').forEach(p => p.classList.remove('active'));
     if (pill) pill.classList.add('active');
+    
+    // Map plural pill IDs to singular database values
+    const branchMap = {
+        'executives': 'executive',
+        'legislative': 'legislative',
+        'judiciary': 'judiciary',
+        'lsba': 'lsba',
+        'previous': 'previous'
+    };
+    const dataBranch = branchMap[branch] || branch;
+    
+    // Show/hide panels (uses plural ID for panel)
     ['executives', 'legislative', 'judiciary', 'lsba', 'previous'].forEach(p => {
         const el = document.getElementById(p + 'Panel');
         if (el) el.style.display = p === branch ? '' : 'none';
     });
+    
+    // Render leaders using the correct database branch value
+    renderBranchLeaders(dataBranch);
+};
+
+// ==========================================
+// LEADERSHIP RENDERING (Dynamic from DB)
+// ==========================================
+function getPresident(leaders) {
+    // Only look at executive branch for the current president
+    return leaders.find(l =>
+        l.role && l.role.toLowerCase() === 'president' &&
+        l.branch === 'executive'
+    ) || null;
+}
+
+function renderPresidentSection(president) {
+    const elements = {
+        presImage: document.getElementById('presImage'),
+        presName: document.getElementById('presName'),
+        presText: document.getElementById('presText'),
+        presSigName: document.getElementById('presSigName'),
+        presImgLeader: document.getElementById('presImgLeader'),
+        presNameLeader: document.getElementById('presNameLeader'),
+        leaderFeaturedFullImg: document.querySelector('#leaderFeaturedFull img'),
+        leaderFeaturedFullRole: document.querySelector('#leaderFeaturedFull .leader-featured__role'),
+        leaderFeaturedFullName: document.querySelector('#leaderFeaturedFull .leader-featured__name'),
+        leaderFeaturedFullBio: document.querySelector('#leaderFeaturedFull .leader-featured__bio'),
+        heroTickerImgs: document.querySelectorAll('.hero-ticker__img')
+    };
+
+    const defaultImg = 'public/assets/images/Osatohanmwengoodnesseseseosa.webp';
+    const imgSrc = president?.image_url || defaultImg;
+    const name = president?.full_name || 'Goodness Osatohanmwen';
+    const bio = president?.bio || '';
+    const instagram = president?.instagram_url || '';
+
+    if (elements.presImage) elements.presImage.src = imgSrc;
+    if (elements.presName) elements.presName.textContent = name;
+    if (elements.presSigName) elements.presSigName.textContent = name;
+    if (elements.presImgLeader) elements.presImgLeader.src = imgSrc;
+    if (elements.presNameLeader) elements.presNameLeader.innerHTML = name.replace(' ', '<br>');
+    if (elements.leaderFeaturedFullImg) elements.leaderFeaturedFullImg.src = imgSrc;
+    if (elements.leaderFeaturedFullRole) elements.leaderFeaturedFullRole.textContent = `● ${president?.role || 'President'} · ${president?.session || '2025/2026'}`;
+    if (elements.leaderFeaturedFullName) elements.leaderFeaturedFullName.innerHTML = name.replace(' ', '<br>');
+    if (elements.leaderFeaturedFullBio) elements.leaderFeaturedFullBio.textContent = bio || 'Leading the executive council of LAWSA UNIBEN.';
+
+    // Update hero ticker images
+    if (elements.heroTickerImgs) {
+        elements.heroTickerImgs.forEach(img => img.src = imgSrc);
+    }
+
+    // Instagram link for featured leader
+    const socialContainer = document.querySelector('#leaderFeaturedFull .leader-featured__body div[style*="display:flex"]');
+    if (socialContainer) {
+        socialContainer.innerHTML = instagram
+            ? `<a href="${instagram}" class="leader-card__social" target="_blank" title="Instagram">ig</a>`
+            : '';
+    }
+
+    // President's official welcome message (from the dedicated field)
+const welcomeMsg = president?.president_message || president?.bio || '';
+if (elements.presText && welcomeMsg) {
+    elements.presText.innerHTML = welcomeMsg.replace(/\n/g, '<br>');
+}
+}
+
+function renderLeaderCard(leader) {
+    const img = leader.image_url || 'public/assets/images/placeholder-leader.jpg';
+    const name = leader.full_name || '';
+    const role = leader.role || '';
+    const instagram = leader.instagram_url || '';
+    return `
+        <div class="leader-card">
+            <div class="leader-card__portrait"><img src="${img}" alt="${name}"></div>
+            <div class="leader-card__role">${role}</div>
+            <div class="leader-card__name display">${name}</div>
+            ${instagram ? `<div class="leader-card__socials"><a href="${instagram}" class="leader-card__social" target="_blank" title="Instagram">ig</a></div>` : ''}
+        </div>`;
+}
+
+function renderLeadershipPreview(leaders) {
+    const grid = document.getElementById('leaderPreviewGrid');
+    if (!grid) return;
+    const nonPresident = leaders.filter(l => l.role && l.role.toLowerCase() !== 'president');
+    const preview = nonPresident.slice(0, 8);
+    grid.innerHTML = preview.map(renderLeaderCard).join('');
+}
+
+function renderBranchLeaders(branch) {
+    const filtered = state.leadership.filter(l => l.branch === branch);
+    const president = filtered.find(l => l.role && l.role.toLowerCase() === 'president') || filtered[0];
+    const others = filtered.filter(l => l.id !== president?.id);
+
+    // Update featured leader
+    const featuredImg = document.querySelector('#leaderFeaturedFull img');
+    const featuredRole = document.querySelector('#leaderFeaturedFull .leader-featured__role');
+    const featuredName = document.querySelector('#leaderFeaturedFull .leader-featured__name');
+    const featuredBio = document.querySelector('#leaderFeaturedFull .leader-featured__bio');
+
+    if (president) {
+        if (featuredImg) featuredImg.src = president.image_url || 'public/assets/images/placeholder-leader.jpg';
+        if (featuredRole) featuredRole.textContent = `● ${president.role} · ${president.session || ''}`;
+        if (featuredName) featuredName.innerHTML = (president.full_name || '').replace(' ', '<br>');
+        if (featuredBio) featuredBio.textContent = president.bio || '';
+        const socialContainer = document.querySelector('#leaderFeaturedFull .leader-featured__body div[style*="display:flex"]');
+        if (socialContainer) {
+            socialContainer.innerHTML = president.instagram_url
+                ? `<a href="${president.instagram_url}" class="leader-card__social" target="_blank" title="Instagram">ig</a>`
+                : '';
+        }
+    } else {
+        if (featuredImg) featuredImg.src = 'public/assets/images/placeholder-leader.jpg';
+        if (featuredRole) featuredRole.textContent = '● No leaders in this branch';
+        if (featuredName) featuredName.innerHTML = '—';
+        if (featuredBio) featuredBio.textContent = '';
+    }
+
+    // Update grid
+    const grid = document.getElementById('leaderFullGrid');
+    if (grid) {
+        grid.innerHTML = others.map(renderLeaderCard).join('') || '<p style="color:var(--text-m);">No other members in this branch.</p>';
+    }
+}
+
+function renderAllLeadership(leaders) {
+    state.leadership = leaders;
+    const president = getPresident(leaders);
+    if (president) {
+        renderPresidentSection(president);
+    }
+    renderLeadershipPreview(leaders);
+    // Default to executives branch on leaders page
+    if (document.getElementById('executivesPanel')) {
+        renderBranchLeaders('executive');
+    }
 }
 
 function viewResource(link) {
@@ -429,6 +577,7 @@ async function initApp() {
     renderResources(resources);
     renderStoreGrid('storePreviewGrid');
     renderStoreGrid('storeGrid');
+    renderAllLeadership(leaders);
 
     // Payment form
     const paymentForm = document.getElementById('paymentForm');

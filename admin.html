@@ -722,13 +722,15 @@
     @media (max-width: 1024px) {
       .sidebar {
         transform: translateX(-100%);
+        box-shadow: none;
       }
       .sidebar.open {
         transform: translateX(0);
-        box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
       }
       .main {
         margin-left: 0;
+        padding-top: 80px;  /* space for the hamburger */
       }
       .mobile-toggle {
         display: flex !important;
@@ -736,14 +738,45 @@
     }
 
     @media (max-width: 768px) {
+      :root {
+        --s6: 1.25rem;
+        --s7: 1.5rem;
+        --s8: 2rem;
+      }
       .main {
-        padding: var(--s4);
+        padding: 70px var(--s3) var(--s4);
       }
       .stats-grid {
         grid-template-columns: 1fr 1fr;
+        gap: var(--s3);
       }
       .page-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+      }
+      .card {
+        padding: var(--s4);
+      }
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.72rem;
+      }
+      .modal-box {
+        padding: var(--s4);
+        max-width: 95vw;
+      }
+      table {
+        font-size: 0.75rem;
+      }
+      thead th, tbody td {
+        padding: var(--s2) var(--s3);
       }
     }
 
@@ -751,29 +784,46 @@
       .stats-grid {
         grid-template-columns: 1fr;
       }
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
+      .page-title {
+        font-size: 1.5rem;
+      }
+      .sidebar {
+        width: 260px;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .form-input, .form-select, .form-textarea {
+        font-size: 16px;  /* prevent iOS zoom */
       }
     }
 
-    .mobile-toggle {
+        .mobile-toggle {
       display: none;
       position: fixed;
       top: var(--s4);
-      left: var(--s4);
+      right: var(--s4);           /* ← moved to right */
       z-index: 200;
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: var(--navy);
       color: white;
       border: none;
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
       align-items: center;
       justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    /* When sidebar is open, turn hamburger into ✕ */
+    .mobile-toggle.open {
+      background: var(--danger);
+      transform: rotate(90deg);
+      border-radius: 50%;
     }
   </style>
 </head>
