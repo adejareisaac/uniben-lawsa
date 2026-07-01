@@ -124,10 +124,10 @@ function toggleFaq(el) {
     if (!wasOpen) item.classList.add('open');
 }
 
-window.setLeaderBranch = function(branch, pill) {
+window.setLeaderBranch = function (branch, pill) {
     document.querySelectorAll('.branch-pill').forEach(p => p.classList.remove('active'));
     if (pill) pill.classList.add('active');
-    
+
     // Map plural pill IDs to singular database values
     const branchMap = {
         'executives': 'executive',
@@ -137,13 +137,13 @@ window.setLeaderBranch = function(branch, pill) {
         'previous': 'previous'
     };
     const dataBranch = branchMap[branch] || branch;
-    
+
     // Show/hide panels (uses plural ID for panel)
     ['executives', 'legislative', 'judiciary', 'lsba', 'previous'].forEach(p => {
         const el = document.getElementById(p + 'Panel');
         if (el) el.style.display = p === branch ? '' : 'none';
     });
-    
+
     // Render leaders using the correct database branch value
     renderBranchLeaders(dataBranch);
 };
@@ -204,10 +204,10 @@ function renderPresidentSection(president) {
     }
 
     // President's official welcome message (from the dedicated field)
-const welcomeMsg = president?.president_message || president?.bio || '';
-if (elements.presText && welcomeMsg) {
-    elements.presText.innerHTML = welcomeMsg.replace(/\n/g, '<br>');
-}
+    const welcomeMsg = president?.president_message || president?.bio || '';
+    if (elements.presText && welcomeMsg) {
+        elements.presText.innerHTML = welcomeMsg.replace(/\n/g, '<br>');
+    }
 }
 
 function renderLeaderCard(leader) {
@@ -216,11 +216,11 @@ function renderLeaderCard(leader) {
     const role = leader.role || '';
     const instagram = leader.instagram_url || '';
     return `
-        <div class="leader-card">
+        <div class="leader-card" onclick="openLeaderModal('${leader.id}')">
             <div class="leader-card__portrait"><img src="${img}" alt="${name}"></div>
             <div class="leader-card__role">${role}</div>
             <div class="leader-card__name display">${name}</div>
-            ${instagram ? `<div class="leader-card__socials"><a href="${instagram}" class="leader-card__social" target="_blank" title="Instagram">ig</a></div>` : ''}
+            ${instagram ? `<div class="leader-card__socials"><a href="${instagram}" class="leader-card__social" target="_blank" title="Instagram" onclick="event.stopPropagation()">ig</a></div>` : ''}
         </div>`;
 }
 
@@ -234,37 +234,58 @@ function renderLeadershipPreview(leaders) {
 
 function renderBranchLeaders(branch) {
     const filtered = state.leadership.filter(l => l.branch === branch);
-    const president = filtered.find(l => l.role && l.role.toLowerCase() === 'president') || filtered[0];
-    const others = filtered.filter(l => l.id !== president?.id);
 
-    // Update featured leader
-    const featuredImg = document.querySelector('#leaderFeaturedFull img');
-    const featuredRole = document.querySelector('#leaderFeaturedFull .leader-featured__role');
-    const featuredName = document.querySelector('#leaderFeaturedFull .leader-featured__name');
-    const featuredBio = document.querySelector('#leaderFeaturedFull .leader-featured__bio');
+    // For the executive branch we keep the existing featured + grid layout
+    if (branch === 'executive') {
+        const president = filtered.find(l => l.role && l.role.toLowerCase() === 'president') || filtered[0];
+        const others = filtered.filter(l => l.id !== president?.id);
 
-    if (president) {
-        if (featuredImg) featuredImg.src = president.image_url || 'public/assets/images/placeholder-leader.jpg';
-        if (featuredRole) featuredRole.textContent = `● ${president.role} · ${president.session || ''}`;
-        if (featuredName) featuredName.innerHTML = (president.full_name || '').replace(' ', '<br>');
-        if (featuredBio) featuredBio.textContent = president.bio || '';
-        const socialContainer = document.querySelector('#leaderFeaturedFull .leader-featured__body div[style*="display:flex"]');
-        if (socialContainer) {
-            socialContainer.innerHTML = president.instagram_url
-                ? `<a href="${president.instagram_url}" class="leader-card__social" target="_blank" title="Instagram">ig</a>`
-                : '';
+        // Update featured leader (always visible inside executivesPanel)
+        const featuredImg = document.querySelector('#leaderFeaturedFull img');
+        const featuredRole = document.querySelector('#leaderFeaturedFull .leader-featured__role');
+        const featuredName = document.querySelector('#leaderFeaturedFull .leader-featured__name');
+        const featuredBio = document.querySelector('#leaderFeaturedFull .leader-featured__bio');
+
+        if (president) {
+            if (featuredImg) featuredImg.src = president.image_url || 'public/assets/images/placeholder-leader.jpg';
+            if (featuredRole) featuredRole.textContent = `● ${president.role} · ${president.session || ''}`;
+            if (featuredName) featuredName.innerHTML = (president.full_name || '').replace(' ', '<br>');
+            if (featuredBio) featuredBio.textContent = president.bio || '';
+            const socialContainer = document.querySelector('#leaderFeaturedFull .leader-featured__body div[style*="display:flex"]');
+            if (socialContainer) {
+                socialContainer.innerHTML = president.instagram_url
+                    ? `<a href="${president.instagram_url}" class="leader-card__social" target="_blank" title="Instagram">ig</a>`
+                    : '';
+            }
+        } else {
+            if (featuredImg) featuredImg.src = 'public/assets/images/placeholder-leader.jpg';
+            if (featuredRole) featuredRole.textContent = '● No leaders in this branch';
+            if (featuredName) featuredName.innerHTML = '—';
+            if (featuredBio) featuredBio.textContent = '';
+        }
+
+        // Update grid
+        const grid = document.getElementById('leaderFullGrid');
+        if (grid) {
+            grid.innerHTML = others.map(renderLeaderCard).join('') || '<p style="color:var(--text-m);">No other members in this branch.</p>';
         }
     } else {
-        if (featuredImg) featuredImg.src = 'public/assets/images/placeholder-leader.jpg';
-        if (featuredRole) featuredRole.textContent = '● No leaders in this branch';
-        if (featuredName) featuredName.innerHTML = '—';
-        if (featuredBio) featuredBio.textContent = '';
-    }
+        // For other branches (legislative, judiciary, lsba, previous)
+        // we simply fill the corresponding panel with a grid of leader cards
+        const panelId = branch + 'Panel';   // e.g. "judiciaryPanel"
+        const panel = document.getElementById(panelId);
+        if (!panel) return;
 
-    // Update grid
-    const grid = document.getElementById('leaderFullGrid');
-    if (grid) {
-        grid.innerHTML = others.map(renderLeaderCard).join('') || '<p style="color:var(--text-m);">No other members in this branch.</p>';
+        if (filtered.length === 0) {
+            panel.innerHTML = `<p style="color:var(--text-m);">No members in this branch yet.</p>`;
+            return;
+        }
+
+        // Build a grid identical to leaders-grid-secondary
+        panel.innerHTML = `
+    <div class="leaders-grid-secondary" style="display:grid;">
+        ${filtered.map(renderLeaderCard).join('')}
+    </div>`;
     }
 }
 
@@ -297,18 +318,51 @@ function viewResource(link) {
 async function handleContact(e) {
     e.preventDefault();
     const form = e.target;
+
+    const btn = document.getElementById('contactBtn');
+    const btnText = document.getElementById('contactBtnText');
+    if (btn) { btn.disabled = true; btnText.textContent = 'Sending…'; }
+
+    // Collect form data
+    const formData = {
+        from_name: form.querySelector('[type="text"]')?.value || '',
+        reply_to: form.querySelector('[type="email"]')?.value || '',
+        subject: form.querySelector('[placeholder*="regarding"]')?.value || '',
+        message: form.querySelector('textarea')?.value || ''
+    };
+
+    // 1. Save to Supabase (as before)
     if (supabase) {
         await supabase.from('contact_messages').insert({
-            full_name: form.querySelector('[type="text"]')?.value || '',
-            email: form.querySelector('[type="email"]')?.value || '',
-            subject: form.querySelector('[placeholder*="regarding"]')?.value || '',
-            message: form.querySelector('textarea')?.value || ''
+            full_name: formData.from_name,
+            email: formData.reply_to,
+            subject: formData.subject,
+            message: formData.message
         });
     }
+
+    // 2. Send email via EmailJS
+    try {
+        // Initialize EmailJS (only needs to be done once)
+        if (typeof emailjs !== 'undefined') {
+            // Replace these with YOUR actual IDs
+            emailjs.init('yDTUMENfXiNEzs6lF');   // from Account → API Keys
+
+            await emailjs.send('service_89y39if', 'template_kq0m9tl', formData);
+            console.log('Email sent successfully');
+        }
+    } catch (err) {
+        console.error('EmailJS error:', err);
+        // Don't block the user – the message was still saved to Supabase
+    }
+
+    // 3. Show success modal
     openModal('noticeModal');
     document.getElementById('noticeTitle').textContent = 'Message Sent!';
     document.getElementById('noticeBody').textContent = 'Thank you for reaching out. We will respond within 48 hours.';
     form.reset();
+
+    if (btn) { btn.disabled = false; btnText.textContent = 'Send Message →'; }
 }
 
 // ==========================================
@@ -337,22 +391,82 @@ async function fetchLeadership() {
     return data;
 }
 
-async function fetchStoreItems() {
-    if (!supabase) return;
-    const { data } = await supabase.from('store_items').select('*').eq('is_active', true);
-    if (data && data.length > 0) {
-        data.forEach(item => {
-            if (!STORE_ITEMS.find(s => s.sku === item.sku)) {
-                STORE_ITEMS.push({
-                    id: item.id,
-                    title: item.name || item.title,
-                    price: item.price,
-                    image: item.image_url || 'https://images.unsplash.com/photo-1520975917650-4e1e0b10b3b0?w=600&q=80',
-                    sku: item.sku || ''
-                });
-            }
-        });
+// ==========================================
+// FACULTY ADVISORS (Dean & Staff Advisor)
+// ==========================================
+async function fetchFacultyAdvisors() {
+    if (!supabase) return [];
+    const { data } = await supabase.from('faculty_advisors').select('*').order('display_order');
+    return data || [];
+}
+
+function renderFacultyAdvisors(advisors) {
+    const inner = document.getElementById('facultyAdvisorsInner');
+    const container = document.getElementById('facultyAdvisorsContainer');
+    if (!inner || !container) return;
+    if (!advisors.length) {
+        container.style.display = 'none';
+        return;
     }
+
+    // Sort: Staff Advisor first, then Dean (or any other order you prefer)
+    const staffAdvisor = advisors.find(a => a.title?.toLowerCase().includes('staff advisor'));
+    const dean = advisors.find(a => a.title?.toLowerCase().includes('dean'));
+    const sorted = [
+        ...(dean ? [dean] : []),
+        ...(staffAdvisor ? [staffAdvisor] : []),
+        ...advisors.filter(a => a !== staffAdvisor && a !== dean)
+    ];
+
+    container.style.display = '';
+    inner.innerHTML = sorted.map(a => `
+        <div class="leader-card faculty-advisor-card">
+            <div class="leader-card__portrait">
+                <img src="${a.image_url || 'public/assets/images/leaders/headshots/staffadvisor.webp'}" alt="${a.full_name}">
+            </div>
+            <div class="leader-card__role">${a.title}</div>
+            <div class="leader-card__name display">${a.full_name}</div>
+        </div>
+    `).join('');
+}
+
+async function fetchStoreItems() {
+    // Keep the defaults in a separate variable
+    const defaultItems = [
+        { id: 's1', title: 'LAWSA Tote Bag', price: 5000, image: 'public/assets/images/merchandise/totebag.webp', sku: 'TOTEBAG-01' },
+        { id: 's2', title: 'LAWSA T-Shirt', price: 6000, image: 'public/assets/images/merchandise/tshirt.webp', sku: 'TSHIRT-01' },
+        { id: 's3', title: 'LAWSA Lanyard', price: 2500, image: 'public/assets/images/merchandise/lanyard.webp', sku: 'LANYARD-01' }
+    ];
+
+    if (!supabase) {
+        // No connection → use defaults
+        STORE_ITEMS = [...defaultItems];
+        state.storeItems = STORE_ITEMS;
+        return;
+    }
+
+    const { data, error } = await supabase
+        .from('store_items')
+        .select('*')
+        .eq('is_active', true);
+
+    if (error) {
+        console.error('Store fetch error:', error);
+        STORE_ITEMS = [...defaultItems];
+    } else if (data && data.length > 0) {
+        // Use database items (with clean mapping)
+        STORE_ITEMS = data.map(item => ({
+            id: item.id,
+            title: item.name || item.title,
+            price: item.price,
+            image: item.image_url || 'https://images.unsplash.com/photo-1520975917650-4e1e0b10b3b0?w=600&q=80',
+            sku: item.sku || ''
+        }));
+    } else {
+        // Database is empty → show defaults
+        STORE_ITEMS = [...defaultItems];
+    }
+
     state.storeItems = STORE_ITEMS;
 }
 
@@ -382,7 +496,7 @@ async function handleDuesPayment(e) {
     if (btn) { btn.textContent = 'Opening WhatsApp...'; btn.disabled = true; }
 
     if (supabase) {
-        await supabase.from('payments').insert({
+        const { error } = await supabase.from('payments').insert({
             full_name: name,
             matric_number: matric,
             academic_level: parseInt(level) || null,
@@ -392,6 +506,15 @@ async function handleDuesPayment(e) {
             transaction_ref: ref,
             status: 'pending'
         });
+
+        if (error) {
+            console.error('Insert error:', error);
+            alert('Failed to record payment. Please screenshot this and contact support.');
+            btn.textContent = 'Send Receipt via WhatsApp →';
+            btn.disabled = false;
+            return;  // stop opening WhatsApp
+        }
+
     }
 
     const msg = buildWhatsAppMessage({ name, matric, level, email, phone, amount });
@@ -443,7 +566,7 @@ function renderAllNews(posts) {
                 <div class="news-card__cat">${p.category || 'News'}</div>
                 <h3 class="news-card__title display">${p.title}</h3>
                 <p class="news-card__excerpt">${p.excerpt || ''}</p>
-                <div class="news-card__meta"><span>${new Date(p.published_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</span><span class="news-card__arrow">→</span></div>
+                <div class="news-card__meta"><span>${new Date(p.published_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}</span><span class="news-card__arrow">→</span></div>
             </div>
         </article>
     `).join('');
@@ -461,7 +584,7 @@ function renderRecentNews(posts) {
                 <div class="news-card__cat">${p.category || 'News'}</div>
                 <h3 class="news-card__title display">${p.title}</h3>
                 <p class="news-card__excerpt">${p.excerpt || ''}</p>
-                <div class="news-card__meta"><span>${new Date(p.published_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</span><span class="news-card__arrow">→</span></div>
+                <div class="news-card__meta"><span>${new Date(p.published_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}</span><span class="news-card__arrow">→</span></div>
             </div>
         </article>
     `).join('');
@@ -508,10 +631,30 @@ function openBlog(id) {
         <div class="blog-modal__body">
             <div class="blog-modal__cat">${post.category || ''}</div>
             <h1 class="blog-modal__title">${post.title}</h1>
-            <div class="blog-modal__meta">${new Date(post.published_at).toLocaleDateString('en-NG',{dateStyle:'long'})}</div>
+            <div class="blog-modal__meta">${new Date(post.published_at).toLocaleDateString('en-NG', { dateStyle: 'long' })}</div>
             <div class="blog-modal__content">${post.content || ''}</div>
         </div>`;
     openModal('blogModal');
+}
+
+function openLeaderModal(id) {
+    const leader = state.leadership.find(l => l.id === id);
+    if (!leader) return;
+
+    const content = document.getElementById('leaderModalContent');
+    if (!content) return;
+
+    content.innerHTML = `
+        <div class="leader-modal__img">
+            <img src="${leader.image_url || 'public/assets/images/placeholder-leader.jpg'}" alt="${leader.full_name}">
+        </div>
+        <h2 class="leader-modal__name">${leader.full_name}</h2>
+        <p class="leader-modal__role">${leader.role}</p>
+        <p class="leader-modal__bio">${leader.bio || 'Bio coming soon.'}</p>
+        ${leader.instagram_url ? `<a href="${leader.instagram_url}" target="_blank" class="leader-modal__social">ig</a>` : ''}
+    `;
+
+    openModal('leaderModal');
 }
 
 // ==========================================
@@ -563,6 +706,29 @@ async function initApp() {
         });
     }
 
+        // Footer governance links – navigate to leaders and switch branch
+        // Footer governance links – navigate to leaders and switch branch
+    document.querySelectorAll('[data-footer-branch]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const branch = link.getAttribute('data-footer-branch');
+            // Navigate to leaders page first
+            Router.navigate('leaders');
+            // Wait for the leaders section to become active and pills to be ready
+            setTimeout(() => {
+                // Use the exact branch value as it appears in the onclick attribute
+                const pill = document.querySelector(`.branch-pill[onclick*="'${branch}'"]`);
+                if (pill) {
+                    pill.click();
+                } else {
+                    // Fallback: try to trigger via setLeaderBranch directly
+                    if (typeof window.setLeaderBranch === 'function') {
+                        window.setLeaderBranch(branch, null);
+                    }
+                }
+            }, 300); // slightly longer delay to ensure rendering
+        });
+    });
     // Load data
     const [posts, resources, leaders] = await Promise.all([
         fetchNewsPosts(),
@@ -579,6 +745,10 @@ async function initApp() {
     renderStoreGrid('storeGrid');
     renderAllLeadership(leaders);
 
+    // Faculty Advisors
+    const advisors = await fetchFacultyAdvisors();
+    renderFacultyAdvisors(advisors);
+
     // Payment form
     const paymentForm = document.getElementById('paymentForm');
     if (paymentForm) {
@@ -587,7 +757,7 @@ async function initApp() {
 
     // Resource filter tabs
     document.querySelectorAll('[data-level]').forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function () {
             document.querySelectorAll('[data-level]').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
             const level = this.dataset.level;
@@ -599,7 +769,7 @@ async function initApp() {
 
     // Resource category buttons
     document.querySelectorAll('[data-category]').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             document.querySelectorAll('[data-category]').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             const cat = this.dataset.category;
@@ -611,7 +781,7 @@ async function initApp() {
 
     // News filter buttons
     document.querySelectorAll('#newsFilterBar [data-filter]').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             document.querySelectorAll('#newsFilterBar [data-filter]').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             const filter = this.dataset.filter;
@@ -634,6 +804,7 @@ async function initApp() {
 // ==========================================
 // EXPORT EVERYTHING TO WINDOW
 // ==========================================
+window.openLeaderModal = openLeaderModal;
 window.closeModal = closeModal;
 window.openModal = openModal;
 window.toggleMobile = toggleMobile;

@@ -709,13 +709,25 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ═══════════════ RESPONSIVE ═══════════════ */
@@ -724,14 +736,18 @@
         transform: translateX(-100%);
         box-shadow: none;
       }
+
       .sidebar.open {
         transform: translateX(0);
         box-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
       }
+
       .main {
         margin-left: 0;
-        padding-top: 80px;  /* space for the hamburger */
+        padding-top: 80px;
+        /* space for the hamburger */
       }
+
       .mobile-toggle {
         display: flex !important;
       }
@@ -743,39 +759,50 @@
         --s7: 1.5rem;
         --s8: 2rem;
       }
+
       .main {
         padding: 70px var(--s3) var(--s4);
       }
+
       .stats-grid {
         grid-template-columns: 1fr 1fr;
         gap: var(--s3);
       }
+
       .page-title {
         font-size: 1.8rem;
       }
+
       .card {
         padding: var(--s4);
       }
+
       .page-header {
         flex-direction: column;
         align-items: flex-start;
       }
+
       .header-actions {
         width: 100%;
         justify-content: flex-start;
       }
+
       .btn {
         padding: 0.6rem 1.2rem;
         font-size: 0.72rem;
       }
+
       .modal-box {
         padding: var(--s4);
         max-width: 95vw;
       }
+
       table {
         font-size: 0.75rem;
       }
-      thead th, tbody td {
+
+      thead th,
+      tbody td {
         padding: var(--s2) var(--s3);
       }
     }
@@ -784,26 +811,34 @@
       .stats-grid {
         grid-template-columns: 1fr;
       }
+
       .page-title {
         font-size: 1.5rem;
       }
+
       .sidebar {
         width: 260px;
       }
+
       .btn {
         width: 100%;
         justify-content: center;
       }
-      .form-input, .form-select, .form-textarea {
-        font-size: 16px;  /* prevent iOS zoom */
+
+      .form-input,
+      .form-select,
+      .form-textarea {
+        font-size: 16px;
+        /* prevent iOS zoom */
       }
     }
 
-        .mobile-toggle {
+    .mobile-toggle {
       display: none;
       position: fixed;
       top: var(--s4);
-      right: var(--s4);           /* ← moved to right */
+      right: var(--s4);
+      /* ← moved to right */
       z-index: 200;
       width: 48px;
       height: 48px;
@@ -824,6 +859,38 @@
       background: var(--danger);
       transform: rotate(90deg);
       border-radius: 50%;
+    }
+
+    /* ═══════════════ FILTER PILLS (Payments page) ═══════════════ */
+    .filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: var(--s2) var(--s5);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      /* pill shape */
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-m);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--navy);
+      color: var(--navy);
+      background: rgba(19, 43, 74, 0.03);
+    }
+
+    .filter-btn.active {
+      background: var(--navy);
+      color: white;
+      border-color: var(--navy);
     }
   </style>
 </head>
@@ -866,6 +933,9 @@
       <button class="sidebar-link" data-page="events">
         <span class="icon">🎉</span> Events
       </button>
+      <button class="sidebar-link" data-page="advisors">
+        <span class="icon">🎓</span> Faculty Advisors
+      </button>
     </nav>
 
     <div class="sidebar-section-label">Administration</div>
@@ -878,7 +948,7 @@
       </button>
     </nav>
 
-        <div class="sidebar-footer">
+    <div class="sidebar-footer">
       <div class="sidebar-user">
         <div class="sidebar-avatar" id="sidebarAvatar">A</div>
         <div class="sidebar-user-info">
@@ -886,7 +956,8 @@
           <span class="sidebar-user-role" id="sidebarUserRole">Super Administrator</span>
         </div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="logout()" style="margin-top:12px; width:100%; color:white; border-color:rgba(255,255,255,0.3);">
+      <button class="btn btn-outline btn-sm" onclick="logout()"
+        style="margin-top:12px; width:100%; color:white; border-color:rgba(255,255,255,0.3);">
         🚪 Sign Out
       </button>
     </div>

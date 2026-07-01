@@ -1615,24 +1615,31 @@ section.section--active {
 .footer {
     background: var(--bg-inv);
     border-top: 1px solid var(--border-dark);
-    text-align: center;
 }
 
 .footer-top {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: var(--s8);
-    padding: var(--s9) var(--s7) var(--s8);
-    border-bottom: 1px solid var(--border);
+    grid-template-columns: 2fr 1fr 1fr 1.2fr;
+    gap: var(--s6);
+    padding: var(--s8) var(--s7);
+    border-bottom: 1px solid rgba(195, 159, 51, 0.15);
+}
+
+.footer-brand-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
 }
 
 .footer-logo {
     font-family: var(--font-d);
-    font-size: var(--t-3xl);
+    font-size: var(--t-2xl);
     font-weight: 900;
     color: var(--white);
     line-height: 1;
-    margin-bottom: var(--s4);
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
 }
 
 .footer-logo span {
@@ -1644,6 +1651,32 @@ section.section--active {
     color: var(--text-m);
     line-height: 1.6;
     max-width: 280px;
+}
+
+.footer-socials {
+    display: flex;
+    gap: var(--s2);
+    margin-top: var(--s2);
+}
+
+.footer-social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-m);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.footer-social-icon:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy);
 }
 
 .footer-col-title {
@@ -1673,16 +1706,40 @@ section.section--active {
     color: var(--white);
 }
 
+.footer-contact-nav span {
+    font-size: var(--t-sm);
+    color: var(--text-m);
+    line-height: 1.6;
+}
+
 .footer-bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: var(--s3);
     padding: var(--s5) var(--s7);
 }
 
 .footer-copy {
     font-size: var(--t-xs);
     color: var(--text-m);
+}
+
+.footer-bottom-links {
+    display: flex;
+    gap: var(--s4);
+}
+
+.footer-bottom-links a {
+    font-size: var(--t-xs);
+    color: var(--text-m);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-bottom-links a:hover {
+    color: var(--gold);
 }
 
 .footer-credit {
@@ -1698,6 +1755,47 @@ section.section--active {
     color: var(--white);
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+    .footer-top {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--s6);
+        padding: var(--s7) var(--s6);
+    }
+    .footer-brand-col {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-top {
+        grid-template-columns: 1fr 1fr;
+        padding: var(--s6) var(--s4);
+        gap: var(--s5);
+    }
+    .footer-brand-col {
+        grid-column: span 2;
+        text-align: center;
+        align-items: center;
+    }
+    .footer-tagline {
+        max-width: 100%;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--s4) var(--s5);
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-top {
+        grid-template-columns: 1fr;
+    }
+    .footer-brand-col {
+        grid-column: span 1;
+    }
+}
 .home-extra {
     padding: var(--s8) 0;
     background: rgba(19, 43, 74, 0.04);
@@ -4142,14 +4240,14 @@ ul, ol {
 /* ============================================================
    REFINED STORE CARDS — ALL PAGES
    ============================================================ */
-
 .store-preview-grid,
 .store-full-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--s6);
-  padding: 10px 10px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--s5);
+  max-width: 900px;          /* force wrapping after ~4 columns */
   margin: 0 auto;
+  padding: var(--s5) 0;
 }
 
 .store-card {
@@ -4163,9 +4261,6 @@ ul, ol {
   flex-direction: column;
   height: 100%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 10px;
-  width: 90%;
-  margin: 0 auto;
 }
 
 .store-card:hover {
@@ -4207,7 +4302,7 @@ ul, ol {
 }
 
 .store-card__body {
-  padding: var(--s5) var(--s5);
+  padding: var(--s5);
   display: flex;
   flex-direction: column;
   gap: var(--s2);
@@ -4216,7 +4311,7 @@ ul, ol {
 
 .store-card__title {
   font-family: var(--font-d);
-  font-size: 1;
+  font-size: var(--t-lg);
   font-weight: 700;
   color: var(--text-h);
   text-transform: uppercase;
@@ -4389,4 +4484,209 @@ ul, ol {
   .product-modal__title {
     font-size: var(--t-lg);
   }
+}
+
+/* ============================================================
+   LEADER DETAIL MODAL
+   ============================================================ */
+.modal--leader {
+    max-width: 500px;
+    background: var(--surface);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#leaderModalContent {
+    padding: var(--s6);
+    text-align: center;
+}
+
+.leader-modal__img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--gold);
+    margin: 0 auto var(--s4);
+}
+
+.leader-modal__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.leader-modal__name {
+    font-family: var(--font-d);
+    font-size: var(--t-2xl);
+    color: var(--text-h);
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: var(--s2);
+}
+
+.leader-modal__role {
+    font-size: var(--t-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    margin-bottom: var(--s4);
+}
+
+.leader-modal__bio {
+    font-size: var(--t-sm);
+    color: var(--text-m);
+    line-height: 1.7;
+    text-align: left;
+    margin-bottom: var(--s4);
+}
+
+.leader-modal__social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-m);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.leader-modal__social:hover {
+    background: var(--text-h);
+    color: var(--white);
+    border-color: var(--text-h);
+}
+
+/* ============================================================
+   FACULTY ADVISORS – large images, left/right alignment
+   ============================================================ */
+.faculty-advisors {
+    padding: var(--s6) var(--s7);
+    border-bottom: 1px solid var(--border);
+}
+
+.faculty-advisors__inner {
+    display: flex;
+    justify-content: space-between;   /* push cards apart */
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--s5);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Override leader-card portrait – 3× size */
+.faculty-advisors__inner .leader-card__portrait {
+    width: 200px;
+    height: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.faculty-advisors__inner .leader-card {
+    flex: 0 0 auto;
+    width: 280px;               /* fixed card width */
+    text-align: center;
+    border: none;        /* remove bottom border on the card itself */
+}
+
+/* Remove grid-related borders – these are flex cards now */
+.faculty-advisors__inner .leader-card:last-child {
+    border-right: none;
+}
+
+/* Responsive – stack on small screens */
+@media (max-width: 768px) {
+    .faculty-advisors__inner {
+        flex-direction: column;
+        align-items: center;
+    }
+    .faculty-advisors__inner .leader-card {
+        width: 100%;
+        max-width: 320px;
+    }
+}
+
+/* ============================================================
+   NON‑EXECUTIVE BRANCH PANELS (Leaders page)
+   ============================================================ */
+#legislativePanel,
+#judiciaryPanel,
+#lsbaPanel,
+#previousPanel {
+    padding: var(--s6) var(--s5) !important;
+}
+
+/* Default: 4 columns like the executive grid (overrides inline style only if needed) */
+#legislativePanel .leaders-grid-secondary,
+#judiciaryPanel .leaders-grid-secondary,
+#lsbaPanel .leaders-grid-secondary,
+#previousPanel .leaders-grid-secondary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);   /* desktop: 4 columns */
+    gap: var(--s5);
+}
+
+/* Tablet & below – 2 columns, centred */
+@media (max-width: 1024px) {
+    #legislativePanel .leaders-grid-secondary,
+    #judiciaryPanel .leaders-grid-secondary,
+    #lsbaPanel .leaders-grid-secondary,
+    #previousPanel .leaders-grid-secondary {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 560px;
+        margin: 0 auto;
+    }
+}
+
+/* Phone – still 2 columns, tighter spacing, cards centred */
+@media (max-width: 576px) {
+    #legislativePanel,
+    #judiciaryPanel,
+    #lsbaPanel,
+    #previousPanel {
+        padding: var(--s4) var(--s3) !important;
+    }
+    #legislativePanel .leaders-grid-secondary,
+    #judiciaryPanel .leaders-grid-secondary,
+    #lsbaPanel .leaders-grid-secondary,
+    #previousPanel .leaders-grid-secondary {
+        gap: var(--s3);
+        max-width: 100%;
+    }
+    #legislativePanel .leader-card,
+    #judiciaryPanel .leader-card,
+    #lsbaPanel .leader-card,
+    #previousPanel .leader-card {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: var(--s3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    #legislativePanel .leader-card:last-child,
+    #judiciaryPanel .leader-card:last-child,
+    #lsbaPanel .leader-card:last-child,
+    #previousPanel .leader-card:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Screen‑reader / bot only text – hidden from sight */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

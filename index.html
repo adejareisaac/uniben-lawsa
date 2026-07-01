@@ -20,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <!-- Main App JS -->
     <script src="public/assets/js/app.js" defer></script>
@@ -34,7 +35,8 @@
             <div class="modal__body">
                 <div class="section-num">[LAWSA — NOTICE]</div>
                 <h2 class="display" id="noticeTitle"
-                    style="font-size:var(--t-2xl);color:var(--text-h);margin-bottom:var(--s4);">Important Announcement</h2>
+                    style="font-size:var(--t-2xl);color:var(--text-h);margin-bottom:var(--s4);">Important Announcement
+                </h2>
                 <div id="noticeBody" style="color:var(--text-m);line-height:1.75;"></div>
             </div>
         </div>
@@ -52,7 +54,8 @@
     <div class="modal-overlay" id="resourceModal" role="dialog" aria-modal="true">
         <div class="modal modal--full">
             <button class="modal__close" onclick="closeModal('resourceModal')" aria-label="Close">×</button>
-            <div class="resource-modal__header">⚠ If document fails to load, kindly contact Executives to ensure Google Drive Link is set to Public.</div>
+            <div class="resource-modal__header">⚠ If document fails to load, kindly contact Executives to ensure Google
+                Drive Link is set to Public.</div>
             <iframe id="resourceFrame" src="" title="Resource Document"></iframe>
         </div>
     </div>
@@ -65,12 +68,39 @@
         </div>
     </div>
 
+    <!-- Leader Detail Modal -->
+    <div class="modal-overlay" id="leaderModal" role="dialog" aria-modal="true">
+        <div class="modal modal--leader">
+            <button class="modal__close" onclick="closeModal('leaderModal')" aria-label="Close">×</button>
+            <div id="leaderModalContent"></div>
+        </div>
+    </div>
+
+        <!-- Passcode Modal -->
+    <div class="modal-overlay" id="passcodeModal" role="dialog" aria-modal="true">
+        <div class="modal">
+            <button class="modal__close" onclick="closeModal('passcodeModal')" aria-label="Close">×</button>
+            <div class="modal__body">
+                <div class="section-num">[LAWSA — DUES ACCESS]</div>
+                <h2 class="display" style="font-size:var(--t-2xl);color:var(--text-h);margin-bottom:var(--s4);">Enter Passcode</h2>
+                <p style="color:var(--text-m);margin-bottom:var(--s5);">This area is restricted. Please enter the passcode provided by the President or Financial Secretary.</p>
+                <div class="field">
+                    <label class="field__label">Passcode</label>
+                    <input type="password" id="passcodeInput" class="field__input" placeholder="Enter passcode">
+                </div>
+                <button class="btn btn--primary" onclick="verifyPasscode()" style="width:100%;">Submit</button>
+                <p id="passcodeError" style="color:var(--danger);margin-top:var(--s3);display:none;">Incorrect passcode. Please try again.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- TICKER -->
     <div class="ticker" id="mainTicker">
         <div class="ticker__track" id="tickerTrack">
             <div class="ticker__item">Welcome to LAWSA UNIBEN — The Official Digital Hub of Law Students at the
                 University of Benin
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚖&nbsp;&nbsp; 2025/2026 Academic Session &nbsp;&nbsp;●&nbsp;&nbsp; Pay Your Association Dues
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚖&nbsp;&nbsp; 2025/2026 Academic Session &nbsp;&nbsp;●&nbsp;&nbsp;
+                Pay Your Association Dues
                 Online &nbsp;&nbsp;●&nbsp;&nbsp; Access Academic Resources by Level &nbsp;&nbsp;●&nbsp;&nbsp;</div>
         </div>
     </div>
@@ -123,14 +153,17 @@
                         </h1>
                         <p class="hero__subtitle">
                             Welcome to the digital home of the Law Students' Association, University of Benin. <br>
-                            <span class="text-gold" style="font-weight:600;">Empowering legal minds. Building a legacy.</span>
+                            <span class="text-gold" style="font-weight:600;">Empowering legal minds. Building a
+                                legacy.</span>
                         </p>
                         <div class="hero__actions">
                             <button class="btn btn--primary" onclick="Router.navigate('pay')">Pay Dues Now</button>
-                            <button class="btn btn--outline hero-btn-special" onclick="Router.navigate('resources')">Browse Resources</button>
+                            <button class="btn btn--outline hero-btn-special"
+                                onclick="Router.navigate('resources')">Browse Resources</button>
                         </div>
                         <div class="hero__session">
-                            <span style="font-size:1.3em;vertical-align:middle;">⚖</span> Law Students Association · UNIBEN
+                            <span style="font-size:1.3em;vertical-align:middle;">⚖</span> Law Students Association ·
+                            UNIBEN
                         </div>
                     </div>
                     <div class="hero_right">
@@ -142,36 +175,46 @@
                         <!-- President image updated by JS -->
                         <div class="ticker__item hero_ticker__item">
                             <span class="hero-ticker__text">LAWSA UNIBEN</span>
-                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President" class="hero-ticker__img">
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
                         </div>
                         <div class="ticker__item hero_ticker__item">
                             <span class="hero-ticker__text">LAWSA UNIBEN</span>
-                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President" class="hero-ticker__img">
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
                         </div>
                         <div class="ticker__item hero_ticker__item">
                             <span class="hero-ticker__text">LAWSA UNIBEN</span>
-                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President" class="hero-ticker__img">
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
                         </div>
                         <div class="ticker__item hero_ticker__item">
                             <span class="hero-ticker__text">LAWSA UNIBEN</span>
-                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President" class="hero-ticker__img">
+                            <img src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President"
+                                class="hero-ticker__img">
                         </div>
                     </div>
                 </div>
                 <div class="hero__bottom">
                     <div class="hero__bottom-track">
                         <span class="hero__bottom-item">Legal Advocacy <span class="hero__bottom-sep">⚖</span></span>
-                        <span class="hero__bottom-item">Academic Excellence <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Academic Excellence <span
+                                class="hero__bottom-sep">⚖</span></span>
                         <span class="hero__bottom-item">Student Welfare <span class="hero__bottom-sep">⚖</span></span>
                         <span class="hero__bottom-item">Community Service <span class="hero__bottom-sep">⚖</span></span>
-                        <span class="hero__bottom-item">Professional Growth <span class="hero__bottom-sep">⚖</span></span>
-                        <span class="hero__bottom-item">Leadership Development <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Professional Growth <span
+                                class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Leadership Development <span
+                                class="hero__bottom-sep">⚖</span></span>
                         <span class="hero__bottom-item">Legal Advocacy <span class="hero__bottom-sep">⚖</span></span>
-                        <span class="hero__bottom-item">Academic Excellence <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Academic Excellence <span
+                                class="hero__bottom-sep">⚖</span></span>
                         <span class="hero__bottom-item">Student Welfare <span class="hero__bottom-sep">⚖</span></span>
                         <span class="hero__bottom-item">Community Service <span class="hero__bottom-sep">⚖</span></span>
-                        <span class="hero__bottom-item">Professional Growth <span class="hero__bottom-sep">⚖</span></span>
-                        <span class="hero__bottom-item">Leadership Development <span class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Professional Growth <span
+                                class="hero__bottom-sep">⚖</span></span>
+                        <span class="hero__bottom-item">Leadership Development <span
+                                class="hero__bottom-sep">⚖</span></span>
                     </div>
                 </div>
             </div>
@@ -206,7 +249,8 @@
                             <p class="wwd-item-text">The welfare of law students is our highest priority. From academic
                                 grievances and examination irregularities to campus safety and faculty-student
                                 relations, LAWSA stands as the first line of defence for every member. We engage the
-                                Faculty of Law and University management through structured dialogue and representation.</p>
+                                Faculty of Law and University management through structured dialogue and representation.
+                            </p>
                         </div>
                     </div>
                     <div class="wwd-item">
@@ -255,7 +299,8 @@
             <!-- PRESIDENT'S MESSAGE (updated by JS) -->
             <div class="pres-section reveal">
                 <div class="pres-image-col">
-                    <img id="presImage" src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President's Image">
+                    <img id="presImage" src="public/assets/images/Osatohanmwengoodnesseseseosa.webp"
+                        alt="President's Image">
                     <div class="pres-img-overlay">
                         <div class="pres-img-name display" id="presName">Osatohanmwen Goodness Eseosa</div>
                         <div class="pres-img-title">President, LAWSA UNIBEN · 2025/2026</div>
@@ -276,16 +321,19 @@
                         As an Association built on excellence, leadership, and service, we recognize the importance of
                         adapting to the changing demands of our time. This website is not only a digital platform but
                         also a reflection of our vision for a modern, transparent, and progressive LAWSA.<br>
-                        I extend my sincere appreciation to everyone whose dedication and efforts contributed to bringing
+                        I extend my sincere appreciation to everyone whose dedication and efforts contributed to
+                        bringing
                         this vision to life. Your commitment continues to strengthen the foundation upon which future
                         generations of Lawsans will build.<br>
-                        As you navigate this platform, I invite you to engage, participate, and remain connected with the
+                        As you navigate this platform, I invite you to engage, participate, and remain connected with
+                        the
                         remarkable journey of the Law Students Association, University of Benin.<br>
                         Welcome to a new era of LAWSA.
                     </p>
                     <div class="pres-sig">
                         <div class="pres-sig-name display" id="presSigName">Osatohanmwen Goodness Eseosa</div>
-                        <div class="pres-sig-role">President, Law Students Association (LAWSA)<br>University of Benin</div>
+                        <div class="pres-sig-role">President, Law Students Association (LAWSA)<br>University of Benin
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,9 +343,17 @@
                 <div class="leaders-header">
                     <div class="leaders-big display">LEADERSHIP</div>
                 </div>
+
+                <!-- FACULTY ADVISORS (dynamically filled by JS) -->
+                <div class="faculty-advisors reveal" id="facultyAdvisorsContainer">
+                    <div class="faculty-advisors__inner" id="facultyAdvisorsInner">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
                 <div class="leader-featured">
                     <div class="leader-featured__img">
-                        <img id="presImgLeader" src="public/assets/images/Osatohanmwengoodnesseseseosa.webp" alt="President">
+                        <img id="presImgLeader" src="public/assets/images/Osatohanmwengoodnesseseseosa.webp"
+                            alt="President">
                     </div>
                     <div class="leader-featured__body">
                         <div class="leader-featured__role">● President · 2025/2026</div>
@@ -306,7 +362,8 @@
                             mandate centered on academic empowerment, welfare expansion, and digital transformation of
                             association services.</p>
                         <div style="margin-top:var(--s6);">
-                            <button class="btn btn--outline" onclick="Router.navigate('leaders')">Meet the Full Council →</button>
+                            <button class="btn btn--outline" onclick="Router.navigate('leaders')">Meet the Full Council
+                                →</button>
                         </div>
                     </div>
                 </div>
@@ -353,11 +410,14 @@
 
             <div class="whatsapp-group-section reveal"
                 style="margin-bottom:var(--s8);background:rgba(255,255,255,.06);padding:var(--s6);border-radius:24px;">
-                <div class="news-big display" style="margin-bottom:var(--s4);">Join Our Official<br><span class="text-gold">WhatsApp Group</span></div>
-                <p style="color:var(--text-m);max-width:680px;line-height:1.8;text-align: center; margin: 0 auto;">Stay connected with LAWSA UNIBEN
+                <div class="news-big display" style="margin-bottom:var(--s4);">Join Our Official<br><span
+                        class="text-gold">WhatsApp Group</span></div>
+                <p style="color:var(--text-m);max-width:680px;line-height:1.8;text-align: center; margin: 0 auto;">Stay
+                    connected with LAWSA UNIBEN
                     announcements, dues updates, event invitations, and member support. Send a message to our official
                     WhatsApp line to request access to the group.</p>
-                <a class="btn btn--gold" href="https://chat.whatsapp.com/JLqGiwPvnNR2DFUoJnyqOZ?mode=gi_t" target="_blank" rel="noopener">Join WhatsApp Group →</a>
+                <a class="btn btn--gold" href="https://chat.whatsapp.com/JLqGiwPvnNR2DFUoJnyqOZ?mode=gi_t"
+                    target="_blank" rel="noopener">Join WhatsApp Group →</a>
             </div>
             <div class="contact-section reveal">
                 <div class="contact-left">
@@ -376,7 +436,8 @@
                             <div class="contact-detail__icon">📍</div>
                             <div>
                                 <div class="contact-detail__label">Location</div>
-                                <div class="contact-detail__val">Faculty of Law, University of Benin, Benin City, Edo State</div>
+                                <div class="contact-detail__val">Faculty of Law, University of Benin, Benin City, Edo
+                                    State</div>
                             </div>
                         </div>
                         <div class="contact-detail">
@@ -412,9 +473,12 @@
                         </div>
                         <div class="field">
                             <label class="field__label">Message</label>
-                            <textarea class="field__textarea" rows="5" placeholder="Write your message here..."></textarea>
+                            <textarea class="field__textarea" rows="5"
+                                placeholder="Write your message here..."></textarea>
                         </div>
-                        <button type="submit" class="btn btn--primary" style="width:100%;">Send Message →</button>
+                        <button type="submit" class="btn btn--primary" style="width:100%;" id="contactBtn">
+    <span id="contactBtnText">Send Message →</span>
+</button>
                     </form>
                 </div>
             </div>
@@ -432,7 +496,8 @@
                         <div class="branch-pill active" onclick="setLeaderBranch('executives',this)">Executive</div>
                         <div class="branch-pill" onclick="setLeaderBranch('legislative',this)">Legislative</div>
                         <div class="branch-pill" onclick="setLeaderBranch('judiciary',this)">Judiciary</div>
-                        <div class="branch-pill" onclick="setLeaderBranch('lsba',this)">Law Students Bar Association</div>
+                        <div class="branch-pill" onclick="setLeaderBranch('lsba',this)">Law Students Bar Association
+                        </div>
                         <div class="branch-pill" onclick="setLeaderBranch('previous',this)">Previous Presidents</div>
                     </div>
                 </div>
@@ -446,7 +511,8 @@
                     <div class="leader-featured__body">
                         <div class="leader-featured__role">● President · 2025/2026 Session</div>
                         <div class="leader-featured__name display">Goodness<br>Osatohanmwen</div>
-                        <p class="leader-featured__bio">President of LAWSA UNIBEN for the 2025/2026 academic session.</p>
+                        <p class="leader-featured__bio">President of LAWSA UNIBEN for the 2025/2026 academic session.
+                        </p>
                         <div style="display:flex;gap:var(--s3);margin-top:var(--s5);">
                             <!-- Social icons dynamically added by JS -->
                         </div>
@@ -458,16 +524,19 @@
             </div>
 
             <div id="legislativePanel" style="display:none;padding:var(--s8) var(--s7);">
-                <p style="color:var(--text-m);">Legislative branch details will be populated from the admin dashboard.</p>
+                <p style="color:var(--text-m);">Legislative branch details will be populated from the admin dashboard.
+                </p>
             </div>
             <div id="judiciaryPanel" style="display:none;padding:var(--s8) var(--s7);">
                 <p style="color:var(--text-m);">Judiciary details will be populated from the admin dashboard.</p>
             </div>
             <div id="lsbaPanel" style="display:none;padding:var(--s8) var(--s7);">
-                <p style="color:var(--text-m);">Law Students Bar Association details will be populated from the admin dashboard.</p>
+                <p style="color:var(--text-m);">Law Students Bar Association details will be populated from the admin
+                    dashboard.</p>
             </div>
             <div id="previousPanel" style="display:none;padding:var(--s8) var(--s7);">
-                <p style="color:var(--text-m);">Previous Presidents will be listed here once the leadership data is available.</p>
+                <p style="color:var(--text-m);">Previous Presidents will be listed here once the leadership data is
+                    available.</p>
             </div>
         </section>
 
@@ -536,7 +605,8 @@
                     <div>
                         <div class="section-num" style="color:#555;">[LAWSA — DUES]</div>
                         <div class="pay-big display">Association<br><span class="text-gold">Dues</span></div>
-                        <p style="color:#777;margin-top:var(--s4);font-size:var(--t-sm);max-width:380px;line-height:1.75;">
+                        <p
+                            style="color:#777;margin-top:var(--s4);font-size:var(--t-sm);max-width:380px;line-height:1.75;">
                             Paying your association dues is the first step to unlocking full membership benefits —
                             including academic resources, event access, and welfare support. Payments are secure and
                             instant.
@@ -550,20 +620,24 @@
                                 for the 2025/2026 session.</div>
                         </div>
                     </div>
-                    <div class="bank-details" style="margin-top:var(--s4);padding:var(--s4);background:rgba(255,255,255,.08);border-radius:18px;">
+                    <div class="bank-details"
+                        style="margin-top:var(--s4);padding:var(--s4);background:rgba(255,255,255,.08);border-radius:18px;">
                         <div><strong>Bank Name:</strong> Fidelity Bank</div>
                         <div><strong>Account Name:</strong> Law Students Association</div>
                         <div><strong>Account Number:</strong> 6060197309</div>
                         <div><strong>Dues Amount:</strong> ₦3,000</div>
                     </div>
-                    <p class="pay-note">After payment, send a copy of your transfer receipt to WhatsApp at <strong>+234 705 770 5284</strong>. Your payment will be reviewed and confirmed by the LAWSA finance team.</p>
+                    <p class="pay-note">After payment, send a copy of your transfer receipt to WhatsApp at <strong>+234
+                            705 770 5284</strong>. Your payment will be reviewed and confirmed by the LAWSA finance
+                        team.</p>
                 </div>
                 <div class="pay-form-col">
                     <div class="pay-form-title display">Pay Your Dues</div>
                     <p class="pay-form-sub">Fill in your details below, then send your payment receipt to our WhatsApp
                         number for confirmation.</p>
                     <p style="margin-top:var(--s3);font-size:0.95rem;color:var(--text-m);">Official WhatsApp:
-                        <a href="https://wa.me/2347057705284" target="_blank" rel="noopener">+234 705 770 5284</a></p>
+                        <a href="https://wa.me/2347057705284" target="_blank" rel="noopener">+234 705 770 5284</a>
+                    </p>
                     <form id="paymentForm" onsubmit="handleDuesPayment(event)">
                         <div class="field">
                             <label class="field__label">Full Name</label>
@@ -588,7 +662,8 @@
                         </div>
                         <div class="field">
                             <label class="field__label">Email Address</label>
-                            <input type="email" class="field__input" id="payEmail" placeholder="john@example.com" required>
+                            <input type="email" class="field__input" id="payEmail" placeholder="john@example.com"
+                                required>
                             <span class="field__error" id="payEmailErr"></span>
                         </div>
                         <div class="field">
@@ -599,11 +674,13 @@
                             <label class="field__label">Payment Type</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="duesType" value="faculty" checked disabled> Faculty Dues — ₦3,000
+                                    <input type="radio" name="duesType" value="faculty" checked disabled> Faculty Dues —
+                                    ₦3,000
                                 </label>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn--gold" style="width:100%;margin-top:var(--s5);padding:1rem;" id="payBtn">
+                        <button type="submit" class="btn btn--gold"
+                            style="width:100%;margin-top:var(--s5);padding:1rem;" id="payBtn">
                             Send Receipt via WhatsApp →
                         </button>
                     </form>
@@ -617,56 +694,74 @@
     <div id="siteFooterContainer"></div>
 
     <template id="siteFooterTemplate">
-        <footer class="footer">
-            <div class="footer-top container">
-                <div class="footer-brand">
-                    <div class="footer-logo display">
-                        <img src="./public/assets/images/logo-white.png" alt="LAWSA UNIBEN Logo"
-                            style="height: 100px;width:auto;margin-right:var(--s2); margin: 0 auto;">
-                        LAWSA <span>UNIBEN</span>
-                    </div>
-                    <p class="footer-tagline" style="text-align: center; margin: 0 auto;">Digital Home of the Law Students' Association, University of Benin. Built
-                        for clarity, connection, and excellence.</p>
+    <footer class="footer">
+        <div class="footer-top container">
+            <!-- Brand -->
+            <div class="footer-brand-col">
+                <div class="footer-logo display">
+                    <img src="./public/assets/images/logo-white.png" alt="LAWSA UNIBEN Logo"
+                         style="height: 70px; width: auto; margin-bottom: var(--s3);">
+                    LAWSA <span>UNIBEN</span>
                 </div>
-                <div>
-                    <div class="footer-col-title">Navigate</div>
-                    <nav class="footer-nav">
-                        <a data-nav="home">Home</a>
-                        <a data-nav="leaders">Leaders</a>
-                        <a data-nav="news">News & Updates</a>
-                        <a data-nav="resources">Resources</a>
-                        <a data-nav="store">Store</a>
-                        <a data-nav="pay">Pay Dues</a>
-                    </nav>
-                </div>
-                <div>
-                    <div class="footer-col-title">Association</div>
-                    <nav class="footer-nav">
-                        <a href="#">About LAWSA</a>
-                        <a href="#">Our Constitution</a>
-                        <a href="#">Achievements</a>
-                        <a href="#">Membership</a>
-                        <a href="#">FAQs</a>
-                    </nav>
-                </div>
-                <div class="footercontact">
-                    <div class="footercontactcontainer">
-                        <div class="footer-col-title">Contact</div>
-                        <nav class="footer-nav footercontactnav">
-                            <a href="mailto:lawsauniben24@gmail.com">lawsauniben24@gmail.com</a>
-                            <a href="https://wa.me/2347057705284" target="_blank" rel="noopener">+234 705 770 5284</a>
-                            <a href="#">Faculty of Law, UNIBEN</a>
-                            <a href="#">Benin City, Edo State</a>
-                        </nav>
-                    </div>
+                <p class="footer-tagline">
+                    Digital Home of the Law Students' Association, University of Benin. Built for clarity, connection, and excellence.
+                </p>
+                <div class="footer-socials">
+                    <a href="mailto:lawsauniben24@gmail.com" class="footer-social-icon" title="Email">✉</a>
+                    <a href="https://wa.me/2347057705284" target="_blank" rel="noopener" class="footer-social-icon" title="WhatsApp">📱</a>
+                    <a href="https://instagram.com/uniben_lawsa" target="_blank" rel="noopener" class="footer-social-icon" title="Instagram">📷</a>
                 </div>
             </div>
-            <div class="footer-bottom container">
-                <div class="footer-copy">© 2026 LAWSA UNIBEN — All Rights Reserved · 2025/2026 Academic Session</div>
-                <div class="footer-credit">Designed & Developed by <a href="https://adisaactech.com.ng" target="_blank" rel="noopener">Adisaac Tech Innovations Ltd</a></div>
+
+            <!-- Quick Links -->
+            <div>
+                <div class="footer-col-title">Quick Links</div>
+                <nav class="footer-nav">
+                    <a data-nav="home">Home</a>
+                    <a data-nav="news">News & Updates</a>
+                    <a data-nav="resources">Resources</a>
+                    <a data-nav="store">Store</a>
+                    <a data-nav="pay">Pay Dues</a>
+                </nav>
             </div>
-        </footer>
-    </template>
+
+            <!-- Governance -->
+            <div>
+                <div class="footer-col-title">Governance</div>
+                <nav class="footer-nav">
+                    <a href="#" data-footer-branch="executives">Executive Council</a>
+<a href="#" data-footer-branch="legislative">Legislative Arm</a>
+<a href="#" data-footer-branch="judiciary">Judicial Arm</a>
+<a href="#" data-footer-branch="previous">Past Presidents</a>
+                    <a href="#">Our Constitution</a>
+                </nav>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <div class="footer-col-title">Contact</div>
+                <nav class="footer-nav footer-contact-nav">
+                    <a href="mailto:lawsauniben24@gmail.com">lawsauniben24@gmail.com</a>
+                    <a href="https://wa.me/2347057705284" target="_blank" rel="noopener">+234 705 770 5284</a>
+                    <span class="footer-contact-address">Faculty of Law, University of Benin<br>Benin City, Edo State</span>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Bottom bar -->
+        <div class="footer-bottom container">
+            <div class="footer-copy">© 2026 LAWSA UNIBEN — All Rights Reserved · 2025/2026 Academic Session</div>
+            <div class="footer-bottom-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Use</a>
+            </div>
+            <div class="footer-credit">
+                <span class="sr-only">Designed & Developed by <a href="https://adisaactech.com.ng" target="_blank" rel="noopener">Adisaac Tech Innovations Ltd</a></span>
+            </div>
+        </div>
+    </footer>
+</template>
 
 </body>
+
 </html>

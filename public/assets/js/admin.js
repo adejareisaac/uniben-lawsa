@@ -53,8 +53,8 @@ async function updateSidebarUser(user) {
 
     // Update sidebar
     const sidebarUserName = document.getElementById('sidebarUserName');
-const sidebarUserRole = document.getElementById('sidebarUserRole');
-const sidebarAvatar = document.getElementById('sidebarAvatar');
+    const sidebarUserRole = document.getElementById('sidebarUserRole');
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
 
     if (sidebarUserName) sidebarUserName.textContent = userName;
     if (sidebarUserRole) sidebarUserRole.textContent = role.replace('_', ' ');
@@ -89,6 +89,7 @@ enforceSecureSession();
 
 // ═══════════════ STATE ═══════════════
 let currentPage = 'dashboard';
+let paymentPasscodeVerified = false;   // for the passcode gate
 const pageRenderers = {};
 const pageLoaders = {};
 
@@ -183,6 +184,16 @@ function setButtonLoading(btn, isLoading) {
             delete btn.dataset.originalText;
         }
     }
+}
+
+async function verifyPaymentPasscode(input) {
+    const { data, error } = await supabaseClient
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'dues_passcode')
+        .single();
+    if (error || !data) return false;
+    return data.value === input;
 }
 
 async function uploadImage(file) {
@@ -693,23 +704,121 @@ window.deleteResource = async function (id) {
 };
 
 // ═══════════════ 6. PAYMENTS ═══════════════
+let paymentsFilter = 'all';   // 'all', 'confirmed', 'pending'
+
 registerPage('payments', () => `
-  <div class="page-header"><div class="page-title-group"><div class="page-breadcrumb">Management / Finance</div><div class="page-title">Dues & <span class="gold">Payments</span></div></div></div>
-  <div class="card"><div class="card-header"><div class="card-title">Payment Records</div></div>
-    <div class="table-wrapper"><table><thead><tr><th>Student</th><th>Matric</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="paymentsTableBody"></tbody></table></div>
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-breadcrumb">Management / Finance</div>
+      <div class="page-title">Dues & <span class="gold">Payments</span></div>
+    </div>
+  </div>
+  <div id="paymentsContentArea">
+    ${!paymentPasscodeVerified ? `
+      <div class="card" style="text-align:center;">
+        <div class="empty-state-icon">🔐</div>
+        <h3 style="font-family:var(--font-d); color:var(--text-h);">Finance Access Passcode</h3>
+        <div class="form-group" style="max-width:300px; margin: var(--s4) auto; position: relative;">
+          <input type="password" id="paymentsPasscodeInput" class="form-input" placeholder="Enter passcode" style="padding-right: 48px;">
+          <button type="button" onclick="togglePasscodeVisibility()" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-m); padding:4px 8px;">👁️</button>
+        </div>
+        <button class="btn btn-gold" onclick="submitPaymentsPasscode()">Unlock</button>
+        <p id="paymentsPasscodeError" style="color:var(--danger); margin-top: var(--s3); display:none;">Invalid passcode</p>
+      </div>
+    ` : `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Payment Records</div>
+          <div style="display:flex; gap:var(--s2);">
+            <button class="filter-btn ${paymentsFilter==='all'?'active':''}" onclick="setPaymentsFilter('all')">All</button>
+            <button class="filter-btn ${paymentsFilter==='confirmed'?'active':''}" onclick="setPaymentsFilter('confirmed')">✅ Confirmed</button>
+            <button class="filter-btn ${paymentsFilter==='pending'?'active':''}" onclick="setPaymentsFilter('pending')">⏳ Pending</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table><thead><tr><th>Student</th><th>Matric</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="paymentsTableBody"></tbody></table>
+        </div>
+      </div>
+    `}
   </div>
 `, async () => {
-    const { data, error } = await supabaseClient.from('payments').select('*').order('created_at', { ascending: false });
+    if (!paymentPasscodeVerified) return;
+
+    let query = supabaseClient.from('payments').select('*').order('created_at', { ascending: false });
+    if (paymentsFilter === 'confirmed') query = query.eq('status', 'confirmed');
+    else if (paymentsFilter === 'pending') query = query.neq('status', 'confirmed');
+
+    const { data, error } = await query;
     if (error) return console.error(error);
     const tbody = document.getElementById('paymentsTableBody');
     if (!data?.length) {
-        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-title">No Payments</div></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-title">No ${paymentsFilter === 'all' ? 'payments' : paymentsFilter} found</div></div></td></tr>`;
         return;
     }
     tbody.innerHTML = data.map(p => `
-    <tr><td>${p.full_name}</td><td>${p.matric_number || ''}</td><td>₦${p.amount}</td><td><span class="badge ${p.status === 'confirmed' ? 'badge-success' : 'badge-warning'}">${p.status || 'pending'}</span></td><td>${new Date(p.created_at).toLocaleDateString()}</td></tr>
+    <tr>
+      <td>${p.full_name}</td>
+      <td>${p.matric_number || ''}</td>
+      <td>₦${p.amount}</td>
+      <td><span class="badge ${p.status === 'confirmed' ? 'badge-success' : 'badge-warning'}">${p.status || 'pending'}</span></td>
+      <td>${new Date(p.created_at).toLocaleDateString()}</td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="togglePaymentStatus('${p.id}', '${p.status}')">
+          ${p.status === 'confirmed' ? '❌ Unconfirm' : '✅ Confirm'}
+        </button>
+      </td>
+    </tr>
   `).join('');
 });
+
+// Filter setter
+window.setPaymentsFilter = function(filter) {
+    paymentsFilter = filter;
+    navigateTo('payments');   // re-render the list
+};
+
+// (keep your existing submitPaymentsPasscode, togglePasscodeVisibility, togglePaymentStatus unchanged)
+
+// Helper for the passcode prompt
+window.submitPaymentsPasscode = async function () {
+    const input = document.getElementById('paymentsPasscodeInput').value;
+    const valid = await verifyPaymentPasscode(input);
+    if (valid) {
+        paymentPasscodeVerified = true;
+        navigateTo('payments');   // reload the page without passcode prompt
+    } else {
+        document.getElementById('paymentsPasscodeError').style.display = 'block';
+    }
+};
+
+window.togglePasscodeVisibility = function () {
+    const input = document.getElementById('paymentsPasscodeInput');
+    const btn = input?.nextElementSibling;
+    if (!input || !btn) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '🙈';
+    } else {
+        input.type = 'password';
+        btn.innerHTML = '👁️';
+    }
+};
+
+// Toggle payment status (confirm / unconfirm)
+window.togglePaymentStatus = async function (paymentId, currentStatus) {
+    const newStatus = currentStatus === 'confirmed' ? 'pending' : 'confirmed';
+    const { error } = await supabaseClient
+        .from('payments')
+        .update({ status: newStatus })
+        .eq('id', paymentId);
+    if (error) {
+        showToast("Update failed: " + error.message, 'error');
+    } else {
+        showToast(`Payment ${newStatus === 'confirmed' ? 'confirmed' : 'marked as pending'}`, 'success');
+        navigateTo('payments');   // refresh the list
+    }
+};
 
 // ═══════════════ 7. STORE ═══════════════
 registerPage('store', () => `
@@ -809,6 +918,104 @@ registerPage('events', () => `
   <div class="page-header"><div class="page-title-group"><div class="page-breadcrumb">Management / Activities</div><div class="page-title"><span class="gold">Events</span></div></div></div>
   <div class="card"><div class="empty-state"><div class="empty-state-icon">🎉</div><div class="empty-state-title">Events Calendar</div><div class="empty-state-text">Coming soon.</div></div></div>
 `);
+
+// ═══════════════ FACULTY ADVISORS ═══════════════
+registerPage('advisors', () => `
+  <div class="page-header">
+    <div class="page-title-group"><div class="page-breadcrumb">Administration / Faculty</div><div class="page-title"><span class="gold">Advisors</span></div></div>
+    <div class="header-actions"><button class="btn btn-gold" onclick="openAdvisorModal()">+ Add Advisor</button></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Dean & Staff Advisor</div></div>
+    <div class="table-wrapper"><table><thead><tr><th></th><th>Name</th><th>Title</th><th>Order</th><th>Actions</th></tr></thead><tbody id="advisorsTableBody"></tbody></table></div>
+  </div>
+`, async () => {
+    const { data, error } = await supabaseClient.from('faculty_advisors').select('*').order('display_order');
+    if (error) return console.error(error);
+    const tbody = document.getElementById('advisorsTableBody');
+    if (!data?.length) {
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🎓</div><div class="empty-state-title">No Advisors</div><button class="btn btn-gold" onclick="openAdvisorModal()">+ Add First Advisor</button></div></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = data.map(a => `
+    <tr>
+      <td>${a.image_url ? `<img src="${a.image_url}" class="preview-thumb">` : '—'}</td>
+      <td><strong>${a.full_name}</strong></td><td>${a.title}</td><td>${a.display_order || 0}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openAdvisorModal('${a.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="deleteAdvisor('${a.id}')">Delete</button></td>
+    </tr>
+  `).join('');
+});
+
+window.openAdvisorModal = function (id = null) {
+    document.getElementById('modalContainer').innerHTML = `
+    <div class="modal-overlay" id="advisorModal"><div class="modal-box">
+      <div class="modal-header"><div class="modal-title">${id ? 'Edit' : 'New'} Advisor</div><button class="modal-close" onclick="closeModal('advisorModal')">✕</button></div>
+      <form onsubmit="saveAdvisor(event, '${id || ''}')">
+        <div class="form-group"><label class="form-label">Photo</label>
+          <div class="image-upload-area" id="advisorDropZone" onclick="document.getElementById('advisorFileInput').click()">
+            <div id="advisorPreview">📷 Click or drag photo here</div>
+            <input type="file" id="advisorFileInput" accept="image/*" style="display:none" onchange="handleAdvisorFile(event)">
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="aname" required></div>
+        <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="atitle" placeholder="e.g. Dean, Faculty of Law" required></div>
+        <div class="form-group"><label class="form-label">Display Order</label><input class="form-input" type="number" id="aorder" value="0"></div>
+        <div style="display:flex;gap:var(--s3);"><button type="submit" class="btn btn-gold">💾 Save</button><button type="button" class="btn btn-outline" onclick="closeModal('advisorModal')">Cancel</button></div>
+      </form>
+    </div></div>`;
+    window._advisorFile = null;
+    setupDragDrop('advisorDropZone', 'advisorFileInput', 'advisorPreview', '_advisorFile');
+    if (id) {
+        supabaseClient.from('faculty_advisors').select('*').eq('id', id).single().then(({ data }) => {
+            if (data) {
+                document.getElementById('aname').value = data.full_name || '';
+                document.getElementById('atitle').value = data.title || '';
+                document.getElementById('aorder').value = data.display_order || 0;
+                if (data.image_url) document.getElementById('advisorPreview').innerHTML = `<img src="${data.image_url}" style="max-width:200px;border-radius:8px;">`;
+            }
+        });
+    }
+};
+
+window.handleAdvisorFile = function (event) {
+    const file = event.target.files[0];
+    if (file) { window._advisorFile = file; previewImage(file, 'advisorPreview'); }
+};
+
+window.saveAdvisor = async function (event, id) {
+    event.preventDefault();
+    const payload = {
+        full_name: document.getElementById('aname').value,
+        title: document.getElementById('atitle').value,
+        display_order: parseInt(document.getElementById('aorder').value) || 0,
+    };
+    if (window._advisorFile) {
+        const url = await uploadImage(window._advisorFile);
+        if (url) payload.image_url = url;
+        window._advisorFile = null;
+    }
+    const { error } = id
+        ? await supabaseClient.from('faculty_advisors').update(payload).eq('id', id)
+        : await supabaseClient.from('faculty_advisors').insert(payload);
+    if (error) {
+        showToast("Save failed: " + error.message, 'error');
+    } else {
+        closeModal('advisorModal');
+        showToast(id ? 'Updated!' : 'Added!');
+        navigateTo('advisors');
+    }
+};
+
+window.deleteAdvisor = async function (id) {
+    if (!confirm('Delete this advisor?')) return;
+    const { error } = await supabaseClient.from('faculty_advisors').delete().eq('id', id);
+    if (error) {
+        showToast("Delete failed: " + error.message, 'error');
+    } else {
+        showToast('Deleted!', 'error');
+        navigateTo('advisors');
+    }
+};
 
 // ═══════════════ 9. USERS ═══════════════
 registerPage('users', () => `
@@ -967,7 +1174,7 @@ console.log('🚀 LAWSA Admin Ready | Supabase Client Instance Secured ✅');
 
 // ═══════════════ AUTO‑WRAP SAVE FUNCTIONS FOR LOADING STATE ═══════════════
 (function patchSaveFunctions() {
-    const saveFunctions = ['saveSession', 'saveLeader', 'saveNews', 'saveResource', 'saveStore', 'saveUser'];
+    const saveFunctions = ['saveSession', 'saveLeader', 'saveNews', 'saveResource', 'saveStore', 'saveUser', 'saveAdvisor'];
 
     saveFunctions.forEach(fnName => {
         if (typeof window[fnName] !== 'function') return;
